@@ -1,0 +1,2186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dome Keeper</title>
+  <style>
+    :root {
+      --ink: #221b17;
+      --paper: #f4ead6;
+      --panel: rgba(34, 27, 23, 0.88);
+      --panel-soft: rgba(60, 47, 37, 0.76);
+      --rim: #7a5f43;
+      --moss: #5f8f43;
+      --fern: #2f7660;
+      --gold: #d9a84e;
+      --bad: #ca5b45;
+      --ok: #78b76d;
+      --glass: rgba(188, 228, 226, 0.28);
+      --sky: #9ac7bf;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, #86b5ac 0%, #d8cda5 48%, #775b40 100%);
+      color: var(--paper);
+      font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+    }
+
+    body {
+      display: grid;
+      place-items: stretch;
+    }
+
+    #app {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      min-width: 320px;
+      background:
+        radial-gradient(circle at 48% 18%, rgba(255, 239, 178, 0.38), transparent 26%),
+        radial-gradient(circle at 12% 86%, rgba(48, 86, 62, 0.34), transparent 27%),
+        radial-gradient(circle at 88% 78%, rgba(126, 82, 52, 0.24), transparent 23%),
+        linear-gradient(180deg, rgba(255, 247, 213, 0.15), rgba(44, 32, 22, 0.22));
+    }
+
+    canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    .topbar {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      z-index: 5;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      pointer-events: none;
+    }
+
+    .brand,
+    .state {
+      border: 2px solid rgba(252, 234, 189, 0.38);
+      background: var(--panel);
+      box-shadow: 0 8px 0 rgba(35, 24, 18, 0.18);
+      text-shadow: 0 1px 0 #000;
+    }
+
+    .brand {
+      width: min(340px, 42vw);
+      padding: 10px 12px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      color: #ffe2a1;
+      font-size: 19px;
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 6px 0 0;
+      color: #e8d7b8;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .state {
+      min-width: 190px;
+      padding: 10px 12px;
+      text-align: right;
+    }
+
+    .state strong {
+      display: block;
+      color: #ffe2a1;
+      font-size: 15px;
+    }
+
+    .state span {
+      display: block;
+      margin-top: 4px;
+      color: #e9d7b7;
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .meters {
+      position: absolute;
+      top: 104px;
+      left: 14px;
+      z-index: 5;
+      display: grid;
+      width: min(300px, 34vw);
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .meter {
+      display: grid;
+      grid-template-columns: 72px 1fr 36px;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 9px;
+      border: 2px solid rgba(252, 234, 189, 0.32);
+      background: var(--panel-soft);
+      box-shadow: 0 5px 0 rgba(35, 24, 18, 0.14);
+      color: #f4ead6;
+      font-size: 12px;
+      text-shadow: 0 1px 0 #000;
+    }
+
+    .track {
+      position: relative;
+      height: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(31, 24, 17, 0.7);
+      background: rgba(26, 22, 18, 0.62);
+    }
+
+    .track i {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 50%;
+      background: var(--ok);
+      transition: width 220ms linear, background-color 220ms linear;
+    }
+
+    .shop {
+      position: absolute;
+      right: 14px;
+      bottom: 14px;
+      z-index: 5;
+      display: grid;
+      width: min(390px, calc(100vw - 28px));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .camera-controls {
+      position: absolute;
+      right: 14px;
+      top: 104px;
+      z-index: 5;
+      display: flex;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    .camera-controls button {
+      width: 42px;
+      min-height: 38px;
+      padding: 6px;
+      font-size: 16px;
+    }
+
+    button {
+      min-height: 54px;
+      padding: 8px 6px;
+      border: 2px solid #5b442f;
+      border-radius: 0;
+      background: #e3c480;
+      color: #2b2118;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: inset 0 2px 0 rgba(255, 244, 190, 0.8), 0 5px 0 rgba(54, 39, 27, 0.55);
+      cursor: pointer;
+    }
+
+    button:hover,
+    button:focus-visible {
+      outline: 2px solid #fff0b8;
+      background: #f0d995;
+    }
+
+    button.selected {
+      border-color: #f9f0bd;
+      background: #9ac36a;
+      color: #1e2a16;
+    }
+
+    button small {
+      display: block;
+      margin-top: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.15;
+    }
+
+    .log {
+      position: absolute;
+      left: 14px;
+      bottom: 14px;
+      z-index: 5;
+      display: grid;
+      width: min(340px, calc(100vw - 28px));
+      gap: 6px;
+      pointer-events: none;
+    }
+
+    .log div {
+      padding: 8px 10px;
+      border: 2px solid rgba(252, 234, 189, 0.32);
+      background: rgba(34, 27, 23, 0.78);
+      color: #f0dfbd;
+      font-size: 12px;
+      line-height: 1.25;
+      text-shadow: 0 1px 0 #000;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 8;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(25, 22, 19, 0.32);
+    }
+
+    .overlay.hidden {
+      display: none;
+    }
+
+    .modal {
+      width: min(520px, 100%);
+      padding: 18px;
+      border: 3px solid #f2d995;
+      background: rgba(38, 30, 23, 0.94);
+      box-shadow: 0 10px 0 rgba(24, 16, 10, 0.38);
+      text-align: center;
+    }
+
+    .modal h2 {
+      margin: 0 0 8px;
+      color: #ffe2a1;
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+
+    .modal p {
+      margin: 0 0 14px;
+      color: #ead8b9;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .modal button {
+      min-width: 150px;
+    }
+
+    @media (max-width: 760px) {
+      .topbar {
+        top: 8px;
+        left: 8px;
+        right: 8px;
+      }
+
+      .brand {
+        width: min(250px, 56vw);
+        padding: 8px;
+      }
+
+      .brand h1 {
+        font-size: 16px;
+      }
+
+      .brand p {
+        display: none;
+      }
+
+      .state {
+        min-width: 124px;
+        padding: 8px;
+      }
+
+      .meters {
+        top: 134px;
+        left: 8px;
+        width: calc(100vw - 16px);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 5px;
+      }
+
+      .meter {
+        grid-template-columns: 56px 1fr 28px;
+        gap: 5px;
+        padding: 5px;
+        font-size: 10px;
+      }
+
+      .shop {
+        right: 8px;
+        bottom: 8px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 5px;
+      }
+
+      .camera-controls {
+        top: 72px;
+        right: 8px;
+      }
+
+      button {
+        min-height: 48px;
+        padding: 6px 4px;
+        font-size: 10px;
+      }
+
+      button small {
+        display: none;
+      }
+
+      .log {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="app">
+    <canvas id="world" width="1280" height="720" aria-label="A living pixel terrarium dome"></canvas>
+
+    <section class="topbar" aria-label="Terrarium status">
+      <div class="brand">
+        <h1>Dome Keeper</h1>
+        <p>Click inside the dome to place life. Keep humidity, oxygen, nutrients, waste, and population pressure in balance.</p>
+      </div>
+      <div class="state">
+        <strong id="verdict">Stable</strong>
+        <span id="clock">Day 1 - dawn</span>
+      </div>
+    </section>
+
+    <section id="meters" class="meters" aria-label="Climate meters"></section>
+    <section class="camera-controls" aria-label="Camera controls">
+      <button id="zoomOut" type="button" title="Zoom out">-</button>
+      <button id="zoomIn" type="button" title="Zoom in">+</button>
+      <button id="resetCamera" type="button" title="Reset view">o</button>
+    </section>
+    <section id="shop" class="shop" aria-label="Add life"></section>
+    <section id="log" class="log" aria-live="polite"></section>
+
+    <div id="overlay" class="overlay">
+      <div class="modal">
+        <h2>Balance a Tiny World</h2>
+        <p>Build a living dome. Plants raise oxygen and consume nutrients, creatures eat and create waste, fungi recycle decay, and humidity can tip the whole tank into bloom or collapse.</p>
+        <button id="startBtn">Start Day 1</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const canvas = document.querySelector("#world");
+    const ctx = canvas.getContext("2d");
+    const metersEl = document.querySelector("#meters");
+    const shopEl = document.querySelector("#shop");
+    const logEl = document.querySelector("#log");
+    const verdictEl = document.querySelector("#verdict");
+    const clockEl = document.querySelector("#clock");
+    const overlay = document.querySelector("#overlay");
+    const startBtn = document.querySelector("#startBtn");
+    const zoomOutBtn = document.querySelector("#zoomOut");
+    const zoomInBtn = document.querySelector("#zoomIn");
+    const resetCameraBtn = document.querySelector("#resetCamera");
+
+    const actions = [
+      { id: "moss", name: "Moss", note: "+nutrients / humid", type: "plant", cost: 2, color: "#6faa4e" },
+      { id: "fern", name: "Fern", note: "+oxygen -nutrients", type: "plant", cost: 7, color: "#3f9a78" },
+      { id: "sprout", name: "Sprout", note: "fast food crop", type: "plant", cost: 5, color: "#9bc75a" },
+      { id: "mushroom", name: "Fungus", note: "recycles waste", type: "plant", cost: 6, color: "#d9b67a" },
+      { id: "bamboo", name: "Bamboo", note: "tall oxygen crop", type: "plant", cost: 9, color: "#6ca84f" },
+      { id: "mite", name: "Mites", note: "eat soft plants", type: "creature", cost: 5, color: "#b8704a" },
+      { id: "glowbug", name: "Glowbug", note: "pollinates", type: "creature", cost: 8, color: "#e2cf5a" },
+      { id: "snail", name: "Snail", note: "grazes fungus", type: "creature", cost: 7, color: "#8e8564" },
+      { id: "mist", name: "Mist", note: "+humidity", type: "climate", cost: 3, color: "#b5e8e3" },
+      { id: "compost", name: "Compost", note: "+nutrients", type: "climate", cost: 2, color: "#9b7448" }
+    ];
+
+    const meterDefs = [
+      ["humidity", "Humidity"],
+      ["oxygen", "Oxygen"],
+      ["nutrients", "Nutrients"],
+      ["waste", "Waste"],
+      ["food", "Food"],
+      ["density", "Density"]
+    ];
+
+    const state = {
+      running: false,
+      selected: "moss",
+      simSpeed: 0.1,
+      day: 1,
+      time: 0,
+      energy: 38,
+      humidity: 58,
+      oxygen: 62,
+      nutrients: 70,
+      waste: 17,
+      food: 44,
+      density: 8,
+      surplusFoodDensity: 0,
+      saturatedHumidityMs: 0,
+      saturatedHumidityDensity: 0,
+      densityRelief: 0,
+      stability: 100,
+      dome: { x: 640, y: 390, r: 292 },
+      camera: { angle: -0.55, zoom: 1, dragStart: null },
+      dragging: null,
+      orbiting: null,
+      items: [],
+      particles: [],
+      mistClouds: [],
+      creatureNursery: {},
+      messages: [],
+      gameOver: false
+    };
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function rand(min, max) {
+      return min + Math.random() * (max - min);
+    }
+
+    function gameDay() {
+      return state.day + state.time / 24;
+    }
+
+    function addMessage(text) {
+      state.messages.unshift(text);
+      state.messages = state.messages.slice(0, 3);
+      renderLog();
+    }
+
+    function renderLog() {
+      logEl.innerHTML = "";
+      state.messages.forEach((message) => {
+        const row = document.createElement("div");
+        row.textContent = message;
+        logEl.appendChild(row);
+      });
+    }
+
+    function buildUi() {
+      meterDefs.forEach(([key, label]) => {
+        const row = document.createElement("div");
+        row.className = "meter";
+        row.innerHTML = `<span>${label}</span><b class="track"><i id="bar-${key}"></i></b><em id="val-${key}">0</em>`;
+        metersEl.appendChild(row);
+      });
+
+      actions.forEach((action) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.dataset.action = action.id;
+        button.innerHTML = `${action.name}<small>${action.note} / ${action.cost}</small>`;
+        button.addEventListener("click", () => {
+          state.selected = action.id;
+          document.querySelectorAll(".shop button").forEach((el) => {
+            el.classList.toggle("selected", el.dataset.action === state.selected);
+          });
+        });
+        shopEl.appendChild(button);
+      });
+
+      document.querySelector('[data-action="moss"]').classList.add("selected");
+    }
+
+    function resize() {
+      const ratio = window.devicePixelRatio || 1;
+      const width = Math.floor(window.innerWidth * ratio);
+      const height = Math.floor(window.innerHeight * ratio);
+      canvas.width = width;
+      canvas.height = height;
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+      const viewW = window.innerWidth;
+      const viewH = window.innerHeight;
+      const radius = Math.min(viewW * 0.36, viewH * 0.43, 330);
+      state.dome = {
+        x: viewW * 0.5,
+        y: viewH * 0.55,
+        r: Math.max(178, radius)
+      };
+    }
+
+    function domeMetrics() {
+      const { x, y, r } = state.dome;
+      const zoom = state.camera.zoom;
+      const bodyR = r * zoom;
+      return {
+        x,
+        y,
+        r: bodyR,
+        baseR: r,
+        top: y - bodyR * 0.58,
+        topY: y - bodyR * 0.44,
+        floorY: y + bodyR * 0.34,
+        floorRx: r * 0.84 * zoom,
+        floorRy: r * 0.28 * zoom,
+        topRx: r * 0.74 * zoom,
+        topRy: r * 0.19 * zoom,
+        backY: y + bodyR * 0.12,
+        frontY: y + bodyR * 0.58
+      };
+    }
+
+    function projectWorld(wx, wz, lift = 0) {
+      const dome = domeMetrics();
+      const c = Math.cos(state.camera.angle);
+      const s = Math.sin(state.camera.angle);
+      const rx = wx * c - wz * s;
+      const rz = wx * s + wz * c;
+      return {
+        x: dome.x + rx * dome.floorRx,
+        y: dome.floorY + rz * dome.floorRy - lift * state.camera.zoom,
+        z: rz,
+        scale: state.camera.zoom * (0.76 + (rz + 1) * 0.18)
+      };
+    }
+
+    function screenToWorld(x, y) {
+      const dome = domeMetrics();
+      const rx = (x - dome.x) / dome.floorRx;
+      const rz = (y - dome.floorY) / dome.floorRy;
+      const c = Math.cos(state.camera.angle);
+      const s = Math.sin(state.camera.angle);
+      return {
+        wx: rx * c + rz * s,
+        wz: -rx * s + rz * c
+      };
+    }
+
+    function worldInDome(wx, wz) {
+      return wx * wx + wz * wz <= 0.94;
+    }
+
+    function clampWorld(item) {
+      const distance = Math.hypot(item.wx, item.wz);
+      if (distance > 0.96) {
+        item.wx = (item.wx / distance) * 0.96;
+        item.wz = (item.wz / distance) * 0.96;
+        return true;
+      }
+      return false;
+    }
+
+    function updateScreenPosition(item) {
+      const projected = projectWorld(item.wx, item.wz, item.lift || 0);
+      item.x = projected.x;
+      item.y = projected.y;
+      item.depth = projected.z;
+      item.renderScale = projected.scale;
+    }
+
+    function inDome(x, y) {
+      const point = screenToWorld(x, y);
+      return worldInDome(point.wx, point.wz);
+    }
+
+    function itemDepthScale(item) {
+      return item.renderScale || 1;
+    }
+
+    function findItemAt(x, y) {
+      for (let i = state.items.length - 1; i >= 0; i--) {
+        const item = state.items[i];
+        const hitSize = (item.type === "plant" ? 20 : 18) * item.size * itemDepthScale(item);
+        if (Math.hypot(item.x - x, item.y - y) <= hitSize) {
+          return item;
+        }
+      }
+      return null;
+    }
+
+    function randomDomePoint() {
+      for (let i = 0; i < 80; i++) {
+        const angle = rand(0, Math.PI * 2);
+        const radius = Math.sqrt(Math.random()) * 0.92;
+        const wx = Math.cos(angle) * radius;
+        const wz = Math.sin(angle) * radius;
+        const projected = projectWorld(wx, wz);
+        return { x: projected.x, y: projected.y, wx, wz };
+      }
+      const projected = projectWorld(0, 0);
+      return { x: projected.x, y: projected.y, wx: 0, wz: 0 };
+    }
+
+    function createItem(kind, x, y) {
+      const base = actions.find((action) => action.id === kind);
+      const world = typeof x === "object" ? x : screenToWorld(x, y);
+      const now = gameDay();
+      const item = {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Math.random()),
+        kind,
+        type: base.type,
+        wx: world.wx,
+        wz: world.wz,
+        x: 0,
+        y: 0,
+        lift: 0,
+        liftTarget: 0,
+        depth: 0,
+        renderScale: 1,
+        vx: rand(-0.18, 0.18),
+        vy: rand(-0.14, 0.14),
+        facing: Math.random() < 0.5 ? -1 : 1,
+        age: 0,
+        health: rand(78, 100),
+        phase: rand(0, Math.PI * 2),
+        bornAt: now,
+        nextReproAt: now + 5,
+        size: base.type === "plant" ? rand(0.72, 0.92) : rand(0.82, 1.2),
+        maxSize: base.type === "plant" ? rand(1.18, 1.52) : rand(0.82, 1.2),
+        color: base.color
+      };
+
+      if (kind === "snail") {
+        item.vx = rand(-0.1, 0.1);
+        item.vy = rand(-0.07, 0.07);
+      }
+      if (kind === "glowbug") {
+        item.vx = rand(-0.34, 0.34);
+        item.vy = rand(-0.28, 0.28);
+        item.lift = rand(38, 82);
+        item.liftTarget = rand(48, 104);
+      }
+      updateScreenPosition(item);
+      return item;
+    }
+
+    function place(kind, x, y) {
+      const action = actions.find((entry) => entry.id === kind);
+      if (!state.running || state.gameOver || !action || !inDome(x, y)) return;
+      if (state.energy < action.cost) {
+        addMessage("Not enough keeper energy. Wait for the dome to recover.");
+        return;
+      }
+      if (kind === "moss" && state.humidity < 30) {
+        addMessage("Moss needs at least 30 humidity before it can take hold.");
+        return;
+      }
+
+      state.energy -= action.cost;
+
+      if (kind === "mist") {
+        state.humidity = clamp(state.humidity + 22, 0, 100);
+        state.oxygen = clamp(state.oxygen - 2, 0, 100);
+        makeParticles(x, y, "#c8f2ee", 16);
+        makeMistCloud(x, y);
+        addMessage("Mist rolls across the glass. Humidity surges.");
+        return;
+      }
+      if (kind === "compost") {
+        state.nutrients = clamp(state.nutrients + 11, 0, 100);
+        state.waste = clamp(state.waste + 5, 0, 100);
+        state.density = clamp(state.density + 5, 0, 100);
+        state.densityRelief = clamp(state.densityRelief - 5, 0, 85);
+        makeParticles(x, y, "#9b7448", 14);
+        addMessage("Compost feeds the soil. Nutrients rise, but density increases.");
+        return;
+      }
+
+      const world = screenToWorld(x, y);
+      state.items.push(createItem(kind, world));
+      if (kind === "moss") {
+        state.nutrients = clamp(state.nutrients + 3, 0, 100);
+      }
+      const addedDensity = action.type === "plant" ? 2.2 : 3.6;
+      state.density = clamp(state.density + addedDensity, 0, 100);
+      state.densityRelief = clamp(state.densityRelief - addedDensity, 0, 85);
+      makeParticles(x, y, action.color, 12);
+      addMessage(`${action.name} added to the dome.`);
+    }
+
+    function seedWorld() {
+      ["moss", "moss", "fern", "sprout", "mushroom", "mite", "glowbug"].forEach((kind) => {
+        const p = randomDomePoint();
+        const item = createItem(kind, p);
+        if (item.type === "plant") {
+          item.bornAt = gameDay() - rand(0, 4);
+          item.nextReproAt = item.bornAt + 5 + rand(0.6, 1.6);
+        }
+        state.items.push(item);
+      });
+      addMessage("The dome wakes up with a fragile food cycle.");
+    }
+
+    function makeParticles(x, y, color, count) {
+      for (let i = 0; i < count; i++) {
+        state.particles.push({
+          x,
+          y,
+          vx: rand(-0.9, 0.9),
+          vy: rand(-1.2, 0.35),
+          life: rand(22, 42),
+          color
+        });
+      }
+    }
+
+    function makeMistCloud(x, y) {
+      const world = screenToWorld(x, y);
+      for (let i = 0; i < 9; i++) {
+        state.mistClouds.push({
+          wx: world.wx + rand(-0.12, 0.12),
+          wz: world.wz + rand(-0.12, 0.12),
+          lift: rand(18, 70),
+          driftX: rand(-0.0009, 0.0009),
+          driftZ: rand(-0.0009, 0.0009),
+          radius: rand(16, 34),
+          life: rand(120, 190),
+          maxLife: 190,
+          phase: rand(0, Math.PI * 2)
+        });
+      }
+    }
+
+    function updateItem(item, dt) {
+      item.age += dt;
+      item.phase += dt * 0.003;
+
+      if (item.type === "plant") {
+        const maturity = plantMaturity(item);
+        const targetSize = item.maxSize * (0.56 + maturity * 0.52);
+        item.size += (targetSize - item.size) * 0.0025 * dt;
+      }
+
+      if (item.type === "creature") {
+        item.wx += item.vx * dt * 0.0026;
+        item.wz += item.vy * dt * 0.0026;
+        item.vx += rand(-0.006, 0.006) * dt;
+        item.vy += rand(-0.005, 0.005) * dt;
+        const speedCap = item.kind === "glowbug" ? 0.52 : 0.23;
+        item.vx = clamp(item.vx, -speedCap, speedCap);
+        item.vy = clamp(item.vy, -speedCap, speedCap);
+        if (item.kind !== "glowbug" && Math.abs(item.vx) > 0.035) {
+          item.facing = item.vx > 0 ? 1 : -1;
+        }
+
+        if (item.kind === "glowbug") {
+          const dome = domeMetrics();
+          const maxLift = (dome.floorY - dome.topY) / state.camera.zoom - 28;
+          if (Math.abs(item.lift - item.liftTarget) < 5 || Math.random() < 0.002 * dt) {
+            item.liftTarget = rand(42, Math.max(54, maxLift * 0.72));
+          }
+          item.lift += (item.liftTarget - item.lift) * 0.006 * dt;
+          item.lift += Math.sin(item.phase * 1.7) * 0.035 * dt;
+          item.lift = clamp(item.lift, 26, maxLift);
+        }
+
+        if (clampWorld(item)) {
+          item.vx *= -1.2;
+          item.vy *= -1.2;
+        }
+      }
+      updateScreenPosition(item);
+
+      const humidityStress = Math.abs(state.humidity - 62) * 0.004;
+      const oxygenStress = state.oxygen < 28 ? 0.12 : 0;
+      const wasteStress = state.waste > 75 ? 0.08 : 0;
+      const foodStress = item.type === "creature" && state.food < 20 ? 0.14 : 0;
+      item.health -= (humidityStress + oxygenStress + wasteStress + foodStress) * dt * 0.015;
+
+      if (item.kind === "mushroom" && state.waste > 20) {
+        item.health += 0.012 * dt;
+      }
+      if (item.kind === "fern" && state.nutrients < 18) {
+        item.health -= 0.05 * dt;
+      }
+      item.health = clamp(item.health, 0, 112);
+    }
+
+    function plantMaturity(item) {
+      return (plantStage(item) - 1) / 4;
+    }
+
+    function plantStage(item) {
+      if (item.type !== "plant") return 0;
+      return clamp(Math.floor(gameDay() - item.bornAt) + 1, 1, 5);
+    }
+
+    function plantPower(kind) {
+      return state.items.reduce((total, item) => {
+        if (item.kind !== kind || item.type !== "plant") return total;
+        return total + 0.82 + plantMaturity(item) * 0.36;
+      }, 0);
+    }
+
+    function simulate(dt) {
+      if (!state.running || state.gameOver) return;
+      const rawDt = dt;
+      dt *= state.simSpeed;
+
+      const hoursAdvanced = dt * 0.0011;
+      state.time += hoursAdvanced;
+      if (state.time >= 24) {
+        state.time -= 24;
+        state.day += 1;
+        state.energy = clamp(state.energy + 16, 0, 60);
+      }
+      state.energy = clamp(state.energy + dt * 0.0024, 0, 60);
+
+      const counts = countKinds();
+      const plants = counts.moss + counts.fern + counts.sprout + counts.mushroom + counts.bamboo;
+      const creatures = counts.mite + counts.glowbug + counts.snail;
+      const mossPower = plantPower("moss");
+      const fernPower = plantPower("fern");
+      const sproutPower = plantPower("sprout");
+      const mushroomPower = plantPower("mushroom");
+      const bambooPower = plantPower("bamboo");
+
+      const plantGrowth = (mossPower * 0.009 + fernPower * 0.014 + sproutPower * 0.012 + bambooPower * 0.003) * dt;
+      const creatureHunger = (counts.mite * 0.014 + counts.glowbug * 0.011 + counts.snail * 0.012) * dt;
+      const decay = state.items.filter((item) => item.health < 22).length * 0.018 * dt;
+      const nutrientDraw = (mossPower * 0.0026 + fernPower * 0.0062 + sproutPower * 0.0034 + mushroomPower * 0.0017 + bambooPower * 0.0042) * dt;
+      const storedFoodSpoilage = (Math.max(0, state.food - 72) * 0.00004 + Math.max(0, state.density - 58) * 0.000025) * dt;
+
+      state.oxygen += fernPower * 0.007 * dt + bambooPower * 0.010 * dt + mossPower * 0.003 * dt - creatures * 0.006 * dt;
+      const baseHumidityDrop = 0.0026 * dt;
+      state.humidity += mossPower * 0.004 * dt + fernPower * 0.002 * dt + bambooPower * 0.001 * dt - creatures * 0.0018 * dt - baseHumidityDrop;
+      state.nutrients += mushroomPower * 0.0065 * dt + state.waste * 0.00055 * dt - nutrientDraw;
+      state.food += plantGrowth * 1.08 + counts.glowbug * 0.002 * dt - creatureHunger * 1.65 - storedFoodSpoilage;
+      state.waste += creatures * 0.0065 * dt + decay - mushroomPower * 0.017 * dt - counts.snail * 0.004 * dt;
+      const surplusFoodPressure = state.food >= 99.5 ? 1 : 0;
+      const surplusFoodDecay = state.food < 92 ? 0.00025 * dt : 0;
+      state.surplusFoodDensity = clamp(state.surplusFoodDensity + surplusFoodPressure * 0.00035 * dt - surplusFoodDecay, 0, 10);
+      if (state.humidity >= 99.5) {
+        state.saturatedHumidityMs += rawDt;
+        if (state.saturatedHumidityMs > 5000) {
+          state.saturatedHumidityDensity = clamp(state.saturatedHumidityDensity + rawDt * 0.00045, 0, 16);
+        }
+      } else if (state.humidity < 96) {
+        state.saturatedHumidityMs = 0;
+        state.saturatedHumidityDensity = clamp(state.saturatedHumidityDensity - rawDt * 0.00012, 0, 16);
+      }
+      state.densityRelief = clamp(state.densityRelief + (25 / 24) * hoursAdvanced, 0, 85);
+      const snailRelief = counts.snail * 4.2;
+      const rawDensity = (mossPower + fernPower + sproutPower + mushroomPower) * 3.1 + bambooPower * 6.2 + creatures * 5.4 + state.surplusFoodDensity + state.saturatedHumidityDensity;
+      state.density = clamp(rawDensity - snailRelief - state.densityRelief, 0, 100);
+
+      state.humidity = clamp(state.humidity, 0, 100);
+      state.oxygen = clamp(state.oxygen, 0, 100);
+      state.nutrients = clamp(state.nutrients, 0, 100);
+      state.food = clamp(state.food, 0, 100);
+      state.waste = clamp(state.waste, 0, 100);
+
+      state.items.forEach((item) => updateItem(item, dt));
+      cullAndReproduce(counts, dt);
+      updateParticles(dt);
+      updateMistClouds(dt);
+      updateVerdict();
+      updateUi();
+    }
+
+    function countKinds() {
+      return state.items.reduce((acc, item) => {
+        acc[item.kind] = (acc[item.kind] || 0) + 1;
+        return acc;
+      }, { moss: 0, fern: 0, sprout: 0, mushroom: 0, bamboo: 0, mite: 0, glowbug: 0, snail: 0 });
+    }
+
+    function cullAndReproduce(counts, dt) {
+      const before = state.items.length;
+      state.items = state.items.filter((item) => item.health > 0);
+      if (state.items.length < before) {
+        state.waste = clamp(state.waste + (before - state.items.length) * 7, 0, 100);
+        addMessage("A lifeform died and fed the decay layer.");
+      }
+
+      const canGrow = state.items.length < 34 && state.density < 92;
+      if (!canGrow) return;
+
+      const now = gameDay();
+      reproduceMaturePlants(now);
+      reproduceCreaturePairs(now);
+    }
+
+    function spawnNear(parent, kind) {
+      for (let i = 0; i < 30; i++) {
+        const wx = parent.wx + rand(-0.2, 0.2);
+        const wz = parent.wz + rand(-0.2, 0.2);
+        if (worldInDome(wx, wz)) return createItem(kind, { wx, wz });
+      }
+      const p = randomDomePoint();
+      return createItem(kind, p);
+    }
+
+    function reproduceMaturePlants(now) {
+      const maturePlants = state.items.filter((item) => item.type === "plant" && plantStage(item) >= 5);
+      maturePlants.forEach((plant) => {
+        if (now < plant.nextReproAt || state.items.length >= 34 || state.density >= 92) return;
+        if ((plant.kind === "fern" || plant.kind === "bamboo" || plant.kind === "sprout") && state.nutrients < 20) {
+          plant.nextReproAt = now + 1;
+          return;
+        }
+        const babies = Math.random() < 0.18 ? 2 : 1;
+        for (let i = 0; i < babies && state.items.length < 34; i++) {
+          const baby = spawnNear(plant, plant.kind);
+          baby.size *= 0.72;
+          baby.maxSize *= rand(0.92, 1.05);
+          state.items.push(baby);
+        }
+        const reproCost = plant.kind === "mushroom" ? 4 : plant.kind === "bamboo" ? 9 : 7;
+        state.nutrients = clamp(state.nutrients - reproCost, 0, 100);
+        plant.nextReproAt = now + 5 + rand(-0.4, 0.8);
+        addMessage(`${actions.find((action) => action.id === plant.kind).name} propagated after reaching maturity.`);
+      });
+    }
+
+    function reproduceCreaturePairs(now) {
+      ["mite", "glowbug", "snail"].forEach((kind) => {
+        const survivors = state.items.filter((item) => item.kind === kind && item.health > 35);
+        if (survivors.length < 2) {
+          state.creatureNursery[kind] = null;
+          return;
+        }
+        if (!state.creatureNursery[kind]) {
+          state.creatureNursery[kind] = now + 5;
+          return;
+        }
+        if (now < state.creatureNursery[kind] || state.items.length >= 34 || state.density >= 92) return;
+        const parent = survivors[Math.floor(Math.random() * survivors.length)];
+        const baby = spawnNear(parent, kind);
+        baby.size *= 0.72;
+        state.items.push(baby);
+        state.food = clamp(state.food - 5, 0, 100);
+        state.creatureNursery[kind] = now + 5 + rand(-0.3, 0.7);
+        addMessage(`${actions.find((action) => action.id === kind).name} survived long enough to reproduce.`);
+      });
+    }
+
+    function updateParticles(dt) {
+      state.particles.forEach((p) => {
+        p.x += p.vx * dt * 0.06;
+        p.y += p.vy * dt * 0.06;
+        p.life -= dt * 0.06;
+      });
+      state.particles = state.particles.filter((p) => p.life > 0);
+    }
+
+    function updateMistClouds(dt) {
+      const dome = domeMetrics();
+      const maxLift = (dome.floorY - dome.topY) / state.camera.zoom - 20;
+      state.mistClouds.forEach((cloud) => {
+        cloud.wx += cloud.driftX * dt;
+        cloud.wz += cloud.driftZ * dt;
+        cloud.lift = clamp(cloud.lift + 0.035 * dt, 10, maxLift);
+        cloud.radius += 0.035 * dt;
+        cloud.life -= 0.09 * dt;
+        const distance = Math.hypot(cloud.wx, cloud.wz);
+        if (distance > 0.92) {
+          cloud.wx = (cloud.wx / distance) * 0.92;
+          cloud.wz = (cloud.wz / distance) * 0.92;
+          cloud.driftX *= -0.35;
+          cloud.driftZ *= -0.35;
+        }
+      });
+      state.mistClouds = state.mistClouds.filter((cloud) => cloud.life > 0);
+    }
+
+    function updateVerdict() {
+      const badness =
+        Math.abs(state.humidity - 62) * 0.9 +
+        Math.abs(state.oxygen - 58) * 0.7 +
+        Math.max(0, state.waste - 48) * 1.1 +
+        Math.max(0, 22 - state.food) * 1.4 +
+        Math.max(0, state.density - 72) * 1.2 +
+        Math.max(0, 18 - state.nutrients) * 1.1;
+
+      state.stability = clamp(100 - badness, 0, 100);
+
+      if (state.humidity <= 0 || state.items.length <= 1 || state.stability <= 0) {
+        state.gameOver = true;
+        verdictEl.textContent = "Collapsed";
+        showEnd("The terrarium collapsed", getCollapseReason());
+      } else if (state.stability < 32) {
+        verdictEl.textContent = "Critical";
+      } else if (state.stability < 58) {
+        verdictEl.textContent = "Unsteady";
+      } else if (state.stability > 82 && state.items.length > 14) {
+        verdictEl.textContent = "Thriving";
+      } else {
+        verdictEl.textContent = "Stable";
+      }
+    }
+
+    function getCollapseReason() {
+      const counts = countKinds();
+      const plants = counts.moss + counts.fern + counts.sprout + counts.mushroom + counts.bamboo;
+      const creatures = counts.mite + counts.glowbug + counts.snail;
+      const causes = [
+        {
+          score: state.food < 22 ? (22 - state.food) * 2.4 + creatures * 2 : 0,
+          label: "Food crash",
+          text: "The creatures ran out of edible plant matter, so the food cycle collapsed."
+        },
+        {
+          score: state.waste > 55 ? (state.waste - 55) * 2.1 : 0,
+          label: "Waste poisoning",
+          text: "Decay and creature waste built up faster than fungus and snails could recycle it."
+        },
+        {
+          score: state.oxygen < 28 ? (28 - state.oxygen) * 2.2 + creatures : 0,
+          label: "Oxygen loss",
+          text: "Creature respiration overtook plant oxygen production."
+        },
+        {
+          score: state.humidity <= 0 ? 200 : state.humidity < 30 ? (30 - state.humidity) * 1.8 : 0,
+          label: "Dry dome",
+          text: "The dome dried out and stressed the plants until the life web failed."
+        },
+        {
+          score: state.humidity > 86 ? (state.humidity - 86) * 1.8 : 0,
+          label: "Damp bloom",
+          text: "Humidity stayed too high, pushing the tank into rot and runaway decay."
+        },
+        {
+          score: state.density > 76 ? (state.density - 76) * 2 + state.items.length : 0,
+          label: "Overcrowding",
+          text: "There was too much life for the dome volume, so pressure on food and air spiked."
+        },
+        {
+          score: state.nutrients < 18 ? (18 - state.nutrients) * 1.9 + plants : 0,
+          label: "Soil depletion",
+          text: "Plants stripped the soil faster than the compost layer could restore nutrients."
+        },
+        {
+          score: state.items.length <= 1 ? 100 : 0,
+          label: "Extinction",
+          text: "Almost nothing living remained, so the ecosystem could not restart itself."
+        }
+      ].sort((a, b) => b.score - a.score);
+
+      const main = causes[0];
+      const readings = `Readings at collapse: humidity ${Math.round(state.humidity)}, oxygen ${Math.round(state.oxygen)}, food ${Math.round(state.food)}, waste ${Math.round(state.waste)}, nutrients ${Math.round(state.nutrients)}, density ${Math.round(state.density)}.`;
+      return `${main.label}: ${main.text} ${readings}`;
+    }
+
+    function updateUi() {
+      meterDefs.forEach(([key]) => {
+        const value = Math.round(state[key]);
+        const bar = document.querySelector(`#bar-${key}`);
+        const val = document.querySelector(`#val-${key}`);
+        val.textContent = value;
+        bar.style.width = `${value}%`;
+        const danger = key === "waste" || key === "density" ? value > 70 : value < 22 || value > 86;
+        const warning = key === "waste" || key === "density" ? value > 52 : value < 36 || value > 76;
+        bar.style.backgroundColor = danger ? "var(--bad)" : warning ? "var(--gold)" : "var(--ok)";
+      });
+
+      const hour = Math.floor(state.time);
+      const phase = hour < 6 ? "night" : hour < 12 ? "morning" : hour < 18 ? "afternoon" : "dusk";
+      clockEl.textContent = `Day ${state.day} - ${phase} - energy ${Math.round(state.energy)}`;
+    }
+
+    function showEnd(title, body) {
+      overlay.classList.remove("hidden");
+      overlay.querySelector("h2").textContent = title;
+      overlay.querySelector("p").textContent = body;
+      startBtn.textContent = "Restart Dome";
+    }
+
+    function draw() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      ctx.clearRect(0, 0, w, h);
+      drawBackground(w, h);
+      drawTerrariumStand();
+      drawDome();
+      drawGlassBack();
+      drawItems();
+      drawParticles();
+      drawMistClouds();
+      drawForeground();
+      drawGlassFront();
+      requestAnimationFrame(draw);
+    }
+
+    function mixChannel(a, b, t) {
+      return Math.round(a + (b - a) * t);
+    }
+
+    function mixRgb(a, b, t) {
+      return `rgb(${mixChannel(a[0], b[0], t)}, ${mixChannel(a[1], b[1], t)}, ${mixChannel(a[2], b[2], t)})`;
+    }
+
+    function rgba(rgb, alpha) {
+      return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
+    }
+
+    function timeLighting() {
+      const hour = state.time;
+      const sun = clamp(Math.sin(((hour - 6) / 24) * Math.PI * 2), 0, 1);
+      const dawn = clamp(1 - Math.abs(hour - 6) / 3.2, 0, 1);
+      const dusk = clamp(1 - Math.abs(hour - 18) / 3.2, 0, 1);
+      const warm = Math.max(dawn, dusk);
+      const night = 1 - sun;
+
+      return {
+        sun,
+        warm,
+        night,
+        wallTop: mixRgb([38, 54, 70], mixRgbArray([143, 189, 179], [207, 151, 101], warm * 0.46), sun),
+        wallMid: mixRgb([61, 57, 73], mixRgbArray([215, 201, 157], [224, 159, 103], warm * 0.54), sun),
+        wallLow: mixRgb([63, 48, 53], mixRgbArray([154, 116, 80], [160, 88, 61], warm * 0.36), sun),
+        floorTop: mixRgb([73, 56, 63], mixRgbArray([139, 103, 71], [151, 87, 55], warm * 0.34), sun),
+        floorLow: mixRgb([38, 31, 39], mixRgbArray([75, 51, 36], [67, 36, 32], warm * 0.25), sun),
+        glow: rgba(warm > 0.2 ? [255, 188, 118] : [255, 238, 177], 0.08 + sun * 0.1 + warm * 0.13),
+        windowAlpha: 0.16 + sun * 0.48 + warm * 0.18,
+        beamAlpha: 0.02 + sun * 0.22 + warm * 0.18,
+        nightAlpha: clamp(night * 0.42 - warm * 0.12, 0, 0.42)
+      };
+    }
+
+    function mixRgbArray(a, b, t) {
+      return [mixChannel(a[0], b[0], t), mixChannel(a[1], b[1], t), mixChannel(a[2], b[2], t)];
+    }
+
+    function drawBackground(w, h) {
+      const light = timeLighting();
+      const wall = ctx.createLinearGradient(0, 0, 0, h);
+      wall.addColorStop(0, light.wallTop);
+      wall.addColorStop(0.42, light.wallMid);
+      wall.addColorStop(0.72, light.wallLow);
+      wall.addColorStop(1, "#35261f");
+      ctx.fillStyle = wall;
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.fillStyle = light.glow;
+      ctx.beginPath();
+      ctx.ellipse(w * 0.52, h * 0.18, w * 0.28, h * 0.18, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      drawWindow(w, h, light);
+      drawBackShelves(w, h);
+
+      const floorY = h * 0.72;
+      const floor = ctx.createLinearGradient(0, floorY, 0, h);
+      floor.addColorStop(0, light.floorTop);
+      floor.addColorStop(1, light.floorLow);
+      ctx.fillStyle = floor;
+      ctx.fillRect(0, floorY, w, h - floorY);
+
+      for (let y = floorY + 8; y < h; y += 28) {
+        ctx.fillStyle = y % 56 < 28 ? "rgba(69, 45, 30, 0.26)" : "rgba(238, 180, 101, 0.10)";
+        ctx.fillRect(0, y, w, 3);
+      }
+
+      for (let x = -40; x < w + 80; x += 92) {
+        ctx.strokeStyle = "rgba(58, 37, 25, 0.24)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x, floorY);
+        ctx.lineTo(x - 70, h);
+        ctx.stroke();
+      }
+
+      if (light.nightAlpha > 0) {
+        ctx.fillStyle = `rgba(24, 28, 52, ${light.nightAlpha})`;
+        ctx.fillRect(0, 0, w, h);
+      }
+    }
+
+    function drawWindow(w, h, light) {
+      const x = w * 0.67;
+      const y = h * 0.08;
+      const ww = Math.min(190, w * 0.22);
+      const wh = Math.min(150, h * 0.24);
+
+      ctx.save();
+      ctx.globalAlpha = 0.72;
+      ctx.fillStyle = `rgba(236, 250, 222, ${light.windowAlpha})`;
+      ctx.fillRect(x, y, ww, wh);
+      ctx.strokeStyle = "rgba(80, 79, 59, 0.38)";
+      ctx.lineWidth = 6;
+      ctx.strokeRect(x, y, ww, wh);
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(x + ww * 0.5, y);
+      ctx.lineTo(x + ww * 0.5, y + wh);
+      ctx.moveTo(x, y + wh * 0.52);
+      ctx.lineTo(x + ww, y + wh * 0.52);
+      ctx.stroke();
+
+      const beam = ctx.createLinearGradient(x + ww * 0.1, y + wh, x - ww * 0.5, h * 0.78);
+      beam.addColorStop(0, `rgba(255, 231, 164, ${light.beamAlpha})`);
+      beam.addColorStop(1, "rgba(255, 241, 181, 0)");
+      ctx.fillStyle = beam;
+      ctx.beginPath();
+      ctx.moveTo(x + ww * 0.15, y + wh);
+      ctx.lineTo(x + ww * 0.92, y + wh);
+      ctx.lineTo(x + ww * 0.42, h * 0.78);
+      ctx.lineTo(x - ww * 0.36, h * 0.78);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawBackShelves(w, h) {
+      const shelfY = h * 0.39;
+      ctx.save();
+      ctx.globalAlpha = 0.78;
+      ctx.fillStyle = "#65452e";
+      ctx.fillRect(w * 0.08, shelfY, w * 0.28, 10);
+      ctx.fillRect(w * 0.72, shelfY + h * 0.08, w * 0.2, 10);
+
+      const pots = [
+        [w * 0.12, shelfY - 8, "#5f7f46"],
+        [w * 0.19, shelfY - 10, "#3f7b63"],
+        [w * 0.3, shelfY - 7, "#7d9d4f"],
+        [w * 0.77, shelfY + h * 0.08 - 8, "#4e805b"],
+        [w * 0.86, shelfY + h * 0.08 - 7, "#8a9c52"]
+      ];
+
+      pots.forEach(([px, py, leaf]) => {
+        ctx.fillStyle = "#7a4f34";
+        ctx.fillRect(px - 9, py, 18, 12);
+        ctx.fillStyle = leaf;
+        for (let i = 0; i < 5; i++) {
+          ctx.beginPath();
+          ctx.ellipse(px + (i - 2) * 5, py - 8 - Math.abs(i - 2) * 2, 4, 13, (i - 2) * 0.35, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+      ctx.restore();
+    }
+
+    function drawTerrariumStand() {
+      const dome = domeMetrics();
+      const tabletop = [];
+      const underside = [];
+      const legAnchors = [];
+      const tableDrop = -42 * state.camera.zoom;
+      const tableThick = -64 * state.camera.zoom;
+
+      for (let i = 0; i <= 72; i++) {
+        const angle = (i / 72) * Math.PI * 2;
+        tabletop.push(tankPoint(dome, angle, 1.28, tableDrop));
+        underside.push(tankPoint(dome, angle, 1.24, tableThick));
+      }
+
+      ctx.save();
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+
+      ctx.fillStyle = "rgba(30, 20, 14, 0.46)";
+      ctx.beginPath();
+      ctx.ellipse(dome.x, dome.floorY + dome.floorRy * 1.75, dome.floorRx * 1.22, dome.floorRy * 0.42, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      [0.15, 0.36, 0.64, 0.85].forEach((turn) => {
+        const angle = turn * Math.PI * 2;
+        const top = tankPoint(dome, angle, 1.02, tableThick + 4 * state.camera.zoom);
+        const foot = tankPoint(dome, angle, 1.1, tableThick - 128 * state.camera.zoom);
+        legAnchors.push({ top, foot, z: top.z });
+      });
+
+      drawTableLegs(legAnchors.filter((leg) => leg.z < 0));
+
+      ctx.fillStyle = "#5a3b25";
+      ctx.beginPath();
+      underside.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = "#8f6339";
+      ctx.beginPath();
+      tabletop.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.closePath();
+      ctx.fill();
+
+      for (let i = 0; i < 9; i++) {
+        const offset = -0.72 + i * 0.18;
+        const a = tankPoint(dome, Math.PI * 0.5, offset, tableDrop - 3 * state.camera.zoom);
+        const b = tankPoint(dome, Math.PI * 1.5, offset, tableDrop - 3 * state.camera.zoom);
+        ctx.strokeStyle = i % 2 ? "rgba(62, 39, 24, 0.22)" : "rgba(246, 190, 105, 0.14)";
+        ctx.lineWidth = 2 * state.camera.zoom;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+      }
+
+      drawTableLegs(legAnchors.filter((leg) => leg.z >= 0));
+
+      ctx.strokeStyle = "#3e2819";
+      ctx.lineWidth = 6 * state.camera.zoom;
+      ctx.beginPath();
+      tabletop.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.closePath();
+      ctx.stroke();
+
+      ctx.strokeStyle = "rgba(245, 184, 93, 0.24)";
+      ctx.lineWidth = 3 * state.camera.zoom;
+      ctx.beginPath();
+      tabletop.slice(0, 37).forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y - 3 * state.camera.zoom);
+        else ctx.lineTo(p.x, p.y - 3 * state.camera.zoom);
+      });
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawTableLegs(legs) {
+      legs
+        .sort((a, b) => a.z - b.z)
+        .forEach((leg) => {
+          const front = clamp((leg.z + 1) * 0.5, 0.18, 1);
+          ctx.strokeStyle = `rgba(67, 42, 25, ${0.72 + front * 0.24})`;
+          ctx.lineWidth = 13 * state.camera.zoom;
+          ctx.beginPath();
+          ctx.moveTo(leg.top.x, leg.top.y);
+          ctx.lineTo(leg.foot.x, leg.foot.y);
+          ctx.stroke();
+
+          ctx.strokeStyle = `rgba(169, 111, 57, ${0.34 + front * 0.22})`;
+          ctx.lineWidth = 4 * state.camera.zoom;
+          ctx.beginPath();
+          ctx.moveTo(leg.top.x - 2 * state.camera.zoom, leg.top.y);
+          ctx.lineTo(leg.foot.x - 2 * state.camera.zoom, leg.foot.y);
+          ctx.stroke();
+        });
+    }
+
+    function drawDome() {
+      const dome = domeMetrics();
+      const { x, y, r } = dome;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.ellipse(x, dome.floorY, dome.floorRx, dome.floorRy, 0, 0, Math.PI * 2);
+      ctx.clip();
+
+      const soil = ctx.createRadialGradient(
+        x - dome.floorRx * 0.18,
+        dome.floorY - dome.floorRy * 0.55,
+        dome.floorRy * 0.12,
+        x,
+        dome.floorY + dome.floorRy * 0.2,
+        dome.floorRx * 0.9
+      );
+      soil.addColorStop(0, "#b18a55");
+      soil.addColorStop(0.44, "#7d5b37");
+      soil.addColorStop(0.82, "#4b3427");
+      soil.addColorStop(1, "#2f211c");
+      ctx.fillStyle = soil;
+      ctx.beginPath();
+      ctx.ellipse(x, dome.floorY, dome.floorRx, dome.floorRy, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "rgba(43, 31, 24, 0.28)";
+      ctx.beginPath();
+      ctx.ellipse(x, dome.floorY + dome.floorRy * 0.18, dome.floorRx * 0.92, dome.floorRy * 0.46, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      const ridge = ctx.createLinearGradient(0, dome.floorY - dome.floorRy * 0.8, 0, dome.floorY + dome.floorRy * 0.15);
+      ridge.addColorStop(0, "rgba(205, 163, 91, 0.34)");
+      ridge.addColorStop(1, "rgba(74, 50, 35, 0.22)");
+      ctx.fillStyle = ridge;
+      ctx.beginPath();
+      ctx.ellipse(x - dome.floorRx * 0.08, dome.floorY - dome.floorRy * 0.18, dome.floorRx * 0.76, dome.floorRy * 0.42, -0.08, 0, Math.PI * 2);
+      ctx.fill();
+
+      for (let band = 0; band < 4; band++) {
+        ctx.strokeStyle = `rgba(48, 35, 27, ${0.13 + band * 0.03})`;
+        ctx.lineWidth = (1.2 + band * 0.4) * state.camera.zoom;
+        ctx.beginPath();
+        ctx.ellipse(
+          x + Math.sin(state.camera.angle + band) * dome.floorRx * 0.025,
+          dome.floorY + dome.floorRy * (-0.36 + band * 0.22),
+          dome.floorRx * (0.68 + band * 0.05),
+          dome.floorRy * (0.1 + band * 0.025),
+          0,
+          0,
+          Math.PI * 2
+        );
+        ctx.stroke();
+      }
+
+      for (let i = 0; i < 36; i++) {
+        const angle = (i * 2.17 + 0.4) % (Math.PI * 2);
+        const spread = 0.18 + ((i * 29) % 70) / 100;
+        const p = projectWorld(Math.cos(angle) * spread, Math.sin(angle) * spread);
+        const moss = i % 3 === 0 ? "#6f9b4f" : i % 3 === 1 ? "#4e7c45" : "#87aa58";
+        ctx.fillStyle = moss;
+        ctx.beginPath();
+        ctx.ellipse(p.x, p.y, (5 + (i % 4)) * p.scale, (2.4 + (i % 3)) * p.scale, angle * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      for (let i = 0; i < 42; i++) {
+        const angle = (i * 2.399) % (Math.PI * 2);
+        const spread = 0.14 + ((i * 37) % 82) / 100;
+        const p = projectWorld(Math.cos(angle) * spread, Math.sin(angle) * spread);
+        const pebble = i % 4 === 0 ? "#c3a06c" : i % 4 === 1 ? "#7a6858" : i % 4 === 2 ? "#5b4637" : "#9b7d57";
+        ctx.fillStyle = pebble;
+        ctx.beginPath();
+        ctx.ellipse(p.x, p.y, (2.2 + (i % 3)) * p.scale, (1.2 + (i % 2)) * p.scale, angle, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = "rgba(139, 92, 49, 0.28)";
+      ctx.beginPath();
+      ctx.ellipse(x, dome.floorY + dome.floorRy * 0.64, dome.floorRx * 0.82, dome.floorRy * 0.22, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(37, 25, 20, 0.42)";
+      ctx.beginPath();
+      ctx.ellipse(x, dome.floorY + dome.floorRy * 0.78, dome.floorRx * 0.72, dome.floorRy * 0.13, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "rgba(206, 158, 83, 0.18)";
+      for (let i = 0; i < 22; i++) {
+        const angle = (i * 2.399) % (Math.PI * 2);
+        const spread = 0.18 + ((i * 31) % 68) / 100;
+        const p = projectWorld(Math.cos(angle) * spread, Math.sin(angle) * spread);
+        ctx.fillRect(p.x, p.y, 3 * p.scale, 1.2 * p.scale);
+      }
+      ctx.restore();
+
+      ctx.strokeStyle = "rgba(43, 32, 24, 0.68)";
+      ctx.lineWidth = 7;
+      ctx.beginPath();
+      ctx.ellipse(x, dome.floorY + 4, dome.floorRx * 1.02, dome.floorRy * 1.04, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = "rgba(45, 34, 25, 0.58)";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.ellipse(x, dome.floorY, dome.floorRx, dome.floorRy, 0, 0, Math.PI);
+      ctx.stroke();
+
+      drawWoodBase(dome);
+    }
+
+    function drawSoftGlassGlints(dome) {
+      const shimmer = Math.sin(state.camera.angle);
+      const leftShift = shimmer * dome.floorRx * 0.08;
+      ctx.save();
+      ctx.globalAlpha = 0.5;
+      ctx.strokeStyle = "rgba(247, 255, 241, 0.38)";
+      ctx.lineWidth = 5 * state.camera.zoom;
+      ctx.beginPath();
+      ctx.moveTo(dome.x - dome.floorRx * 0.34 + leftShift, dome.floorY + dome.floorRy * 0.14);
+      ctx.bezierCurveTo(
+        dome.x - dome.floorRx * 0.44 + leftShift,
+        dome.y - dome.r * 0.08,
+        dome.x - dome.topRx * 0.28 + leftShift,
+        dome.topY + dome.topRy * 0.2,
+        dome.x - dome.topRx * 0.06 + leftShift,
+        dome.topY - dome.topRy * 0.58
+      );
+      ctx.stroke();
+
+      ctx.globalAlpha = 0.32;
+      ctx.lineWidth = 3 * state.camera.zoom;
+      ctx.beginPath();
+      ctx.moveTo(dome.x + dome.floorRx * 0.2 - leftShift, dome.floorY - dome.floorRy * 0.2);
+      ctx.bezierCurveTo(
+        dome.x + dome.floorRx * 0.28 - leftShift,
+        dome.y - dome.r * 0.04,
+        dome.x + dome.topRx * 0.16 - leftShift,
+        dome.topY,
+        dome.x + dome.topRx * 0.05 - leftShift,
+        dome.topY - dome.topRy * 0.35
+      );
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function tankPoint(dome, angle, radius = 1, height = 0) {
+      const c = Math.cos(state.camera.angle);
+      const s = Math.sin(state.camera.angle);
+      const wx = Math.cos(angle) * radius;
+      const wz = Math.sin(angle) * radius;
+      const rx = wx * c - wz * s;
+      const rz = wx * s + wz * c;
+      return {
+        x: dome.x + rx * dome.floorRx,
+        y: dome.floorY + rz * dome.floorRy - height,
+        z: rz
+      };
+    }
+
+    function drawTankRims(dome) {
+      const height = dome.floorY - dome.topY;
+      ctx.save();
+      ctx.lineCap = "round";
+
+      for (let i = 0; i < 18; i++) {
+        const angle = (i / 18) * Math.PI * 2;
+        const outer = tankPoint(dome, angle, 1.02, 0);
+        const inner = tankPoint(dome, angle, 0.9, 0);
+        const topOuter = tankPoint(dome, angle, 0.9, height);
+        const topInner = tankPoint(dome, angle, 0.78, height);
+        const frontAlpha = clamp((outer.z + 1) * 0.5, 0.18, 0.85);
+
+        ctx.strokeStyle = `rgba(83, 57, 35, ${0.16 + frontAlpha * 0.2})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(inner.x, inner.y);
+        ctx.lineTo(outer.x, outer.y);
+        ctx.stroke();
+
+        ctx.strokeStyle = `rgba(241, 255, 246, ${0.12 + frontAlpha * 0.28})`;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(topInner.x, topInner.y);
+        ctx.lineTo(topOuter.x, topOuter.y);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawTankBackRibs(dome) {
+      drawTankRibs(dome, false);
+    }
+
+    function drawTankFrontRibs(dome) {
+      drawTankRibs(dome, true);
+    }
+
+    function drawTankRibs(dome, front) {
+      const height = dome.floorY - dome.topY;
+      const ribs = [];
+      for (let i = 0; i < 10; i++) {
+        const angle = (i / 10) * Math.PI * 2;
+        const base = tankPoint(dome, angle, 0.98, 0);
+        const top = tankPoint(dome, angle, 0.86, height);
+        ribs.push({ base, top, z: base.z });
+      }
+
+      ribs
+        .filter((rib) => front ? rib.z >= -0.05 : rib.z < -0.05)
+        .sort((a, b) => a.z - b.z)
+        .forEach((rib) => {
+          const alpha = front ? 0.34 + rib.z * 0.18 : 0.12;
+          ctx.strokeStyle = `rgba(230, 255, 247, ${alpha})`;
+          ctx.lineWidth = front ? 2.2 : 1.4;
+          ctx.beginPath();
+          ctx.moveTo(rib.top.x, rib.top.y);
+          ctx.bezierCurveTo(
+            (rib.top.x + rib.base.x) * 0.5,
+            rib.top.y + (rib.base.y - rib.top.y) * 0.3,
+            (rib.top.x + rib.base.x) * 0.5,
+            rib.top.y + (rib.base.y - rib.top.y) * 0.72,
+            rib.base.x,
+            rib.base.y
+          );
+          ctx.stroke();
+        });
+    }
+
+    function drawWoodBase(dome) {
+      const points = [];
+      for (let i = 0; i <= 44; i++) {
+        const angle = Math.PI + (i / 44) * Math.PI;
+        points.push(tankPoint(dome, angle, 1.06, -8 * state.camera.zoom));
+      }
+
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "#4d3524";
+      ctx.lineWidth = 18 * state.camera.zoom;
+      ctx.beginPath();
+      points.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+
+      ctx.strokeStyle = "#967144";
+      ctx.lineWidth = 8 * state.camera.zoom;
+      ctx.beginPath();
+      points.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y - 3 * state.camera.zoom);
+        else ctx.lineTo(p.x, p.y - 3 * state.camera.zoom);
+      });
+      ctx.stroke();
+
+      for (let i = 0; i < 12; i++) {
+        const angle = Math.PI + ((i + 0.5) / 12) * Math.PI;
+        const inner = tankPoint(dome, angle, 0.92, -4 * state.camera.zoom);
+        const outer = tankPoint(dome, angle, 1.12, -4 * state.camera.zoom);
+        ctx.strokeStyle = "rgba(39, 27, 19, 0.35)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(inner.x, inner.y);
+        ctx.lineTo(outer.x, outer.y);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function glassArcPoints(dome, radius, height, front, steps = 48) {
+      const points = [];
+      for (let i = 0; i <= steps; i++) {
+        const angle = (i / steps) * Math.PI * 2;
+        const point = tankPoint(dome, angle, radius, height);
+        if (front ? point.z >= 0 : point.z < 0) {
+          points.push(point);
+        } else if (points.length > 0 && points[points.length - 1] !== null) {
+          points.push(null);
+        }
+      }
+      return points;
+    }
+
+    function strokeGlassArc(dome, radius, height, front, color, width) {
+      const points = glassArcPoints(dome, radius, height, front);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.beginPath();
+      points.forEach((point) => {
+        if (!point) return;
+        const previous = points[points.indexOf(point) - 1];
+        if (!previous) ctx.moveTo(point.x, point.y);
+        else ctx.lineTo(point.x, point.y);
+      });
+      ctx.stroke();
+    }
+
+    function drawGlassBack() {
+      const dome = domeMetrics();
+      const height = dome.floorY - dome.topY;
+      const glass = ctx.createLinearGradient(0, dome.topY - dome.topRy, 0, dome.floorY + dome.floorRy);
+      glass.addColorStop(0, "rgba(234, 255, 247, 0.12)");
+      glass.addColorStop(0.5, "rgba(141, 216, 204, 0.055)");
+      glass.addColorStop(1, "rgba(80, 110, 92, 0.08)");
+
+      ctx.save();
+      drawTankPath(dome);
+      ctx.fillStyle = glass;
+      ctx.fill();
+
+      strokeGlassArc(dome, 0.96, height, false, "rgba(224, 255, 247, 0.26)", 2 * state.camera.zoom);
+      strokeGlassArc(dome, 1.02, 0, false, "rgba(56, 84, 68, 0.16)", 3 * state.camera.zoom);
+      ctx.restore();
+    }
+
+    function drawGlassFront() {
+      const dome = domeMetrics();
+      const height = dome.floorY - dome.topY;
+      const shimmer = Math.sin(state.camera.angle);
+      const drift = shimmer * dome.floorRx * 0.06;
+
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+
+      strokeGlassArc(dome, 0.98, height, true, "rgba(241, 255, 247, 0.62)", 3.2 * state.camera.zoom);
+      strokeGlassArc(dome, 1.02, 0, true, "rgba(234, 255, 247, 0.46)", 3 * state.camera.zoom);
+
+      const knob = tankPoint(dome, state.camera.angle + Math.PI * 0.12, 0.12, height + 14 * state.camera.zoom);
+      ctx.fillStyle = "rgba(236, 255, 247, 0.58)";
+      ctx.beginPath();
+      ctx.ellipse(knob.x, knob.y, 10 * state.camera.zoom, 5 * state.camera.zoom, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(80, 101, 82, 0.32)";
+      ctx.lineWidth = 2 * state.camera.zoom;
+      ctx.stroke();
+
+      ctx.strokeStyle = "rgba(255, 248, 214, 0.28)";
+      ctx.lineWidth = 2 * state.camera.zoom;
+      ctx.beginPath();
+      ctx.moveTo(dome.x - dome.topRx * 0.28 + drift * 0.4, dome.topY - dome.topRy * 0.92);
+      ctx.quadraticCurveTo(dome.x, dome.topY - dome.topRy * 1.22, dome.x + dome.topRx * 0.26 + drift * 0.4, dome.topY - dome.topRy * 0.92);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawTankPath(dome) {
+      ctx.beginPath();
+      ctx.moveTo(dome.x - dome.topRx, dome.topY);
+      ctx.bezierCurveTo(dome.x - dome.topRx, dome.topY - dome.topRy, dome.x + dome.topRx, dome.topY - dome.topRy, dome.x + dome.topRx, dome.topY);
+      ctx.lineTo(dome.x + dome.floorRx, dome.frontY);
+      ctx.quadraticCurveTo(dome.x, dome.floorY + dome.floorRy * 1.18, dome.x - dome.floorRx, dome.frontY);
+      ctx.lineTo(dome.x - dome.topRx, dome.topY);
+      ctx.closePath();
+    }
+
+    function drawItems() {
+      state.items
+        .slice()
+        .map((item) => {
+          updateScreenPosition(item);
+          return item;
+        })
+        .sort((a, b) => a.depth - b.depth)
+        .forEach((item) => {
+          if (item.kind === "glowbug") {
+            const ground = projectWorld(item.wx, item.wz, 0);
+            ctx.save();
+            ctx.globalAlpha = 0.18;
+            ctx.fillStyle = "#1f1812";
+            ctx.beginPath();
+            ctx.ellipse(ground.x, ground.y + 4 * ground.scale, 7 * ground.scale, 3 * ground.scale, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+          ctx.save();
+          ctx.translate(Math.round(item.x), Math.round(item.y));
+          const depth = itemDepthScale(item);
+          ctx.scale(depth, depth);
+          ctx.globalAlpha = clamp(item.health / 80, 0.34, 1);
+          if (item.type === "plant") drawPlant(item);
+          else drawCreature(item);
+          ctx.restore();
+        });
+    }
+
+    function drawLeaf(x, y, w, h, angle, color) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, w, h, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(235, 255, 203, 0.26)";
+      ctx.fillRect(-1, -h * 0.8, 2, h * 1.6);
+      ctx.restore();
+    }
+
+    function drawPlant(item) {
+      const s = 9 * item.size;
+      const stage = plantStage(item);
+      const sway = Math.sin(item.phase) * 2;
+      ctx.fillStyle = "#3d3528";
+      ctx.beginPath();
+      ctx.ellipse(0, s * 0.62, s * 0.72, 3, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (item.kind === "mushroom") {
+        const capWidth = s * (0.74 + stage * 0.2);
+        const capHeight = s * (0.24 + stage * 0.055);
+        const stemHeight = s * (0.72 + stage * 0.13);
+        ctx.fillStyle = "#e8d5ad";
+        ctx.beginPath();
+        ctx.ellipse(0, -stemHeight * 0.42, s * 0.22, stemHeight * 0.52, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#cda967";
+        ctx.fillRect(-1, -stemHeight * 0.8, 2, stemHeight * 0.75);
+        ctx.fillStyle = item.color;
+        ctx.beginPath();
+        ctx.ellipse(0, -stemHeight, capWidth * 0.52, capHeight, 0, Math.PI, Math.PI * 2);
+        ctx.lineTo(capWidth * 0.48, -stemHeight + capHeight * 0.12);
+        ctx.quadraticCurveTo(0, -stemHeight + capHeight * 0.6, -capWidth * 0.48, -stemHeight + capHeight * 0.12);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = "rgba(101, 61, 45, 0.18)";
+        ctx.beginPath();
+        ctx.ellipse(0, -stemHeight + capHeight * 0.1, capWidth * 0.38, capHeight * 0.35, 0, 0, Math.PI * 2);
+        ctx.fill();
+        if (stage >= 5) {
+          ctx.fillStyle = "#f2d8a3";
+          ctx.beginPath();
+          ctx.ellipse(-capWidth * 0.18, -stemHeight - capHeight * 0.16, 1.7, 1.2, 0, 0, Math.PI * 2);
+          ctx.ellipse(capWidth * 0.13, -stemHeight - capHeight * 0.02, 1.5, 1.1, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        return;
+      }
+
+      if (item.kind === "bamboo") {
+        const dome = domeMetrics();
+        const depth = itemDepthScale(item);
+        const availableHeight = (dome.floorY - dome.topY - 44) / Math.max(0.45, state.camera.zoom * depth);
+        const height = Math.min(s * (2.0 + stage * 1.85), availableHeight);
+        const bambooSway = Math.sin(item.phase) * 1.4;
+        const stalkWidth = clamp(s * 0.18, 3, 5);
+        const nodeGap = clamp(height / (stage + 4), 9, 15);
+
+        ctx.fillStyle = "#2f7044";
+        ctx.fillRect(-stalkWidth * 0.5 + bambooSway, -height, stalkWidth, height + s * 0.62);
+        ctx.fillStyle = "#75b75b";
+        ctx.fillRect(stalkWidth * 0.05 + bambooSway, -height + 4, Math.max(1, stalkWidth * 0.34), height - 3);
+
+        ctx.fillStyle = "#245736";
+        for (let y = -height + nodeGap; y < 0; y += nodeGap) {
+          ctx.fillRect(-stalkWidth * 1.05 + bambooSway, y, stalkWidth * 2.1, 2);
+        }
+
+        for (let i = 0; i < stage + 2; i++) {
+          const ratio = (i + 1) / (stage + 3);
+          const y = -height + height * ratio;
+          const dir = i % 2 === 0 ? -1 : 1;
+          const leafLength = s * (0.7 + stage * 0.12) * (1 - ratio * 0.25);
+          drawLeaf(bambooSway + dir * (stalkWidth + leafLength * 0.32), y, leafLength * 0.42, 3.2, dir * 0.28, i % 3 === 0 ? "#8ecf62" : "#5fa34d");
+        }
+
+        if (stage >= 5) {
+          drawLeaf(bambooSway - 4, -height - 2, 7, 3.2, -0.3, "#a8d86a");
+          drawLeaf(bambooSway + 4, -height - 2, 7, 3.2, 0.3, "#a8d86a");
+        }
+        return;
+      }
+
+      if (item.kind === "moss") {
+        const clumps = stage + 3;
+        for (let i = 0; i < clumps; i++) {
+          const x = (i - (clumps - 1) / 2) * s * 0.22 + Math.sin(item.phase + i) * 1.2;
+          const y = -s * (0.12 + (i % 2) * 0.08);
+          ctx.fillStyle = i % 2 ? "#7fb451" : "#5c9a49";
+          ctx.beginPath();
+          ctx.ellipse(x, y, s * 0.24, s * (0.22 + stage * 0.025), 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        return;
+      }
+
+      if (item.kind === "fern") {
+        const fronds = stage <= 1 ? 3 : stage + 3;
+        ctx.strokeStyle = "#2f7660";
+        ctx.lineWidth = 2;
+        for (let i = 0; i < fronds; i++) {
+          const t = fronds === 1 ? 0 : i / (fronds - 1);
+          const angle = -0.88 + t * 1.76;
+          const length = s * (0.9 + stage * 0.16) * (0.86 + Math.sin(i) * 0.08);
+          const tipX = Math.sin(angle) * length + sway * 0.4;
+          const tipY = -Math.cos(angle) * length;
+          ctx.beginPath();
+          ctx.moveTo(0, s * 0.35);
+          ctx.quadraticCurveTo(tipX * 0.35, tipY * 0.56, tipX, tipY);
+          ctx.stroke();
+          drawLeaf(tipX * 0.48, tipY * 0.58, s * 0.18, s * 0.07, angle, "#62ad7f");
+          drawLeaf(tipX * 0.72, tipY * 0.78, s * 0.16, s * 0.06, angle, "#78bf8e");
+        }
+        return;
+      }
+
+      ctx.fillStyle = "#5a913d";
+      ctx.fillRect(-1.5 + sway, -s * (0.95 + stage * 0.1), 3, s * (1.2 + stage * 0.12));
+      const leafColor = item.kind === "sprout" ? "#dbe982" : item.color;
+      drawLeaf(-s * 0.38 + sway, -s * 0.72, s * (0.34 + stage * 0.03), s * 0.15, -0.38, leafColor);
+      drawLeaf(s * 0.38 + sway, -s * 0.88, s * (0.34 + stage * 0.03), s * 0.15, 0.38, leafColor);
+      if (stage >= 3) drawLeaf(-s * 0.18 + sway, -s * 1.24, s * 0.28, s * 0.13, -0.12, "#b6d76a");
+      if (stage >= 5) drawLeaf(sway, -s * 1.55, s * 0.24, s * 0.16, 0, "#e2ee8a");
+    }
+
+    function drawCreature(item) {
+      const bob = Math.sin(item.phase * 2) * 1.5;
+      if (item.kind === "glowbug") {
+        ctx.shadowColor = "#f4e46b";
+        ctx.shadowBlur = 18;
+        ctx.fillStyle = "rgba(247, 241, 136, 0.36)";
+        ctx.beginPath();
+        ctx.ellipse(0, bob, 10, 7, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "rgba(209, 238, 205, 0.68)";
+        ctx.beginPath();
+        ctx.ellipse(-5, -3 + bob, 5, 3, -0.35, 0, Math.PI * 2);
+        ctx.ellipse(5, -3 + bob, 5, 3, 0.35, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#f2d85a";
+        ctx.beginPath();
+        ctx.ellipse(0, bob, 4.4, 5.8, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#fff2a6";
+        ctx.fillRect(-1.5, -3 + bob, 3, 2);
+        ctx.fillStyle = "#3d3528";
+        ctx.fillRect(-5, 1 + bob, 3, 2);
+        ctx.fillRect(2, 1 + bob, 3, 2);
+        return;
+      }
+
+      ctx.save();
+      ctx.scale(item.facing || 1, 1);
+      if (item.kind === "snail") {
+        ctx.fillStyle = "#756a55";
+        ctx.beginPath();
+        ctx.ellipse(-1, 2 + bob, 9, 3.8, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#9a8766";
+        ctx.beginPath();
+        ctx.ellipse(7, -1 + bob, 3, 3.6, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#3d3528";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(7, -4 + bob);
+        ctx.lineTo(9, -8 + bob);
+        ctx.moveTo(5, -4 + bob);
+        ctx.lineTo(4, -8 + bob);
+        ctx.stroke();
+        ctx.fillStyle = "#b69663";
+        ctx.beginPath();
+        ctx.ellipse(-3, -4 + bob, 6, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#7a5d3b";
+        ctx.beginPath();
+        ctx.arc(-3, -4 + bob, 4, 0.2, Math.PI * 1.75);
+        ctx.stroke();
+        ctx.fillStyle = "#2d251e";
+        ctx.fillRect(8, -8 + bob, 1.5, 1.5);
+        ctx.fillRect(3, -8 + bob, 1.5, 1.5);
+        ctx.restore();
+        return;
+      }
+
+      ctx.strokeStyle = "#38291e";
+      ctx.lineWidth = 1.4;
+      const stride = clamp(Math.hypot(item.vx, item.vy) * 7, 0.8, 3.4);
+      for (let i = 0; i < 3; i++) {
+        const y = -4 + i * 4 + bob;
+        const step = Math.sin(item.phase * 8 + i * 1.9) * stride;
+        const lift = Math.cos(item.phase * 8 + i * 1.9) * 1.1;
+        ctx.beginPath();
+        ctx.moveTo(-4, y);
+        ctx.quadraticCurveTo(-6 - step * 0.35, y - 1 + lift, -9 - step, y - 3 - lift);
+        ctx.moveTo(4, y);
+        ctx.quadraticCurveTo(6 + step * 0.35, y - 1 - lift, 9 + step, y - 3 + lift);
+        ctx.stroke();
+      }
+      ctx.fillStyle = "#ad6744";
+      ctx.beginPath();
+      ctx.ellipse(0, bob, 5.8, 6.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#c9875d";
+      ctx.beginPath();
+      ctx.ellipse(0, -2 + bob, 3.2, 2.8, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#38291e";
+      ctx.fillRect(-3, -5 + bob, 1.5, 1.5);
+      ctx.fillRect(2, -5 + bob, 1.5, 1.5);
+      ctx.restore();
+    }
+
+    function drawParticles() {
+      state.particles.forEach((p) => {
+        ctx.globalAlpha = clamp(p.life / 34, 0, 1);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, 3, 3);
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    function drawMistClouds() {
+      const clouds = state.mistClouds
+        .slice()
+        .map((cloud) => ({ cloud, projected: projectWorld(cloud.wx, cloud.wz, cloud.lift) }))
+        .sort((a, b) => a.projected.z - b.projected.z);
+
+      ctx.save();
+      clouds.forEach(({ cloud, projected }) => {
+        const lifeAlpha = clamp(cloud.life / cloud.maxLife, 0, 1);
+        const pulse = 0.88 + Math.sin(cloud.phase + cloud.life * 0.04) * 0.08;
+        const radius = cloud.radius * projected.scale * pulse;
+        const mist = ctx.createRadialGradient(projected.x, projected.y, 1, projected.x, projected.y, radius);
+        mist.addColorStop(0, `rgba(229, 255, 248, ${0.26 * lifeAlpha})`);
+        mist.addColorStop(0.5, `rgba(187, 231, 222, ${0.13 * lifeAlpha})`);
+        mist.addColorStop(1, "rgba(187, 231, 222, 0)");
+        ctx.fillStyle = mist;
+        ctx.beginPath();
+        ctx.ellipse(projected.x, projected.y, radius * 1.25, radius * 0.62, 0, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.restore();
+    }
+
+    function drawForeground() {
+      const dome = domeMetrics();
+      const { x } = dome;
+      const stress = 1 - state.stability / 100;
+      if (stress > 0.38) {
+        ctx.fillStyle = `rgba(135, 78, 54, ${stress * 0.18})`;
+        ctx.beginPath();
+        ctx.ellipse(x, dome.floorY, dome.floorRx, dome.floorRy, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    let last = performance.now();
+    function loop(now) {
+      const dt = Math.min(48, now - last);
+      last = now;
+      simulate(dt);
+      requestAnimationFrame(loop);
+    }
+
+    function restart() {
+      Object.assign(state, {
+        running: true,
+        day: 1,
+        time: 6,
+        energy: 38,
+        humidity: 58,
+        oxygen: 62,
+        nutrients: 70,
+        waste: 17,
+        food: 44,
+        density: 8,
+        surplusFoodDensity: 0,
+        saturatedHumidityMs: 0,
+        saturatedHumidityDensity: 0,
+        densityRelief: 0,
+        stability: 100,
+        items: [],
+        particles: [],
+        mistClouds: [],
+        creatureNursery: {},
+        messages: [],
+        gameOver: false
+      });
+      overlay.classList.add("hidden");
+      seedWorld();
+      updateUi();
+    }
+
+    canvas.addEventListener("pointerdown", (event) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const item = findItemAt(x, y);
+
+      if (item && state.running && !state.gameOver) {
+        state.dragging = { item, wasCreature: item.type === "creature" };
+        item.vx = 0;
+        item.vy = 0;
+        canvas.setPointerCapture(event.pointerId);
+        return;
+      }
+
+      state.orbiting = {
+        startX: event.clientX,
+        startY: event.clientY,
+        startAngle: state.camera.angle,
+        moved: false,
+        x,
+        y
+      };
+      canvas.setPointerCapture(event.pointerId);
+    });
+
+    canvas.addEventListener("pointermove", (event) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+
+      if (state.dragging) {
+        const world = screenToWorld(x, y);
+        if (worldInDome(world.wx, world.wz)) {
+          state.dragging.item.wx = world.wx;
+          state.dragging.item.wz = world.wz;
+          updateScreenPosition(state.dragging.item);
+        }
+        return;
+      }
+
+      if (state.orbiting) {
+        const dx = event.clientX - state.orbiting.startX;
+        const dy = event.clientY - state.orbiting.startY;
+        if (Math.abs(dx) > 4 || Math.abs(dy) > 4) state.orbiting.moved = true;
+        state.camera.angle = state.orbiting.startAngle + dx * 0.008;
+      }
+    });
+
+    canvas.addEventListener("pointerup", (event) => {
+      if (state.dragging) {
+        if (state.dragging.wasCreature) {
+          state.dragging.item.vx = rand(-0.14, 0.14);
+          state.dragging.item.vy = rand(-0.1, 0.1);
+        }
+        state.dragging = null;
+        if (canvas.hasPointerCapture(event.pointerId)) {
+          canvas.releasePointerCapture(event.pointerId);
+        }
+        return;
+      }
+
+      if (state.orbiting && !state.orbiting.moved) {
+        place(state.selected, state.orbiting.x, state.orbiting.y);
+      }
+      state.orbiting = null;
+      if (canvas.hasPointerCapture(event.pointerId)) {
+        canvas.releasePointerCapture(event.pointerId);
+      }
+    });
+
+    canvas.addEventListener("wheel", (event) => {
+      event.preventDefault();
+      const direction = event.deltaY > 0 ? -1 : 1;
+      state.camera.zoom = clamp(state.camera.zoom + direction * 0.14, 0.5, 2.25);
+    }, { passive: false });
+
+    zoomOutBtn.addEventListener("click", () => {
+      state.camera.zoom = clamp(state.camera.zoom - 0.18, 0.5, 2.25);
+    });
+
+    zoomInBtn.addEventListener("click", () => {
+      state.camera.zoom = clamp(state.camera.zoom + 0.18, 0.5, 2.25);
+    });
+
+    resetCameraBtn.addEventListener("click", () => {
+      state.camera.angle = -0.55;
+      state.camera.zoom = 1;
+    });
+
+    canvas.addEventListener("pointercancel", (event) => {
+      if (state.dragging && state.dragging.wasCreature) {
+        state.dragging.item.vx = rand(-0.14, 0.14);
+        state.dragging.item.vy = rand(-0.1, 0.1);
+      }
+      state.dragging = null;
+      state.orbiting = null;
+      if (canvas.hasPointerCapture(event.pointerId)) {
+        canvas.releasePointerCapture(event.pointerId);
+      }
+    });
+
+    window.addEventListener("keydown", (event) => {
+      const index = Number(event.key) - 1;
+      if (index >= 0 && index < actions.length) {
+        state.selected = actions[index].id;
+        document.querySelectorAll(".shop button").forEach((el) => {
+          el.classList.toggle("selected", el.dataset.action === state.selected);
+        });
+      }
+      if (event.key.toLowerCase() === "r") restart();
+    });
+
+    startBtn.addEventListener("click", restart);
+    window.addEventListener("resize", resize);
+
+    buildUi();
+    resize();
+    updateUi();
+    draw();
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>

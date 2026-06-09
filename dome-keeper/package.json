@@ -1,0 +1,17 @@
+{
+  "name": "dome-keeper",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A single-page browser game about tending a living dome with CI checks and an agent improvement loop.",
+  "type": "module",
+  "scripts": {
+    "serve": "node scripts/serve.mjs",
+    "check": "node tests/static-check.mjs",
+    "agent:plan": "node scripts/agent-improvement-plan.mjs",
+    "test:e2e": "playwright test",
+    "test": "npm run check && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.45.0"
+  }
+}
