@@ -247,6 +247,52 @@
       text-shadow: 0 1px 0 #000;
     }
 
+    .assistant {
+      position: absolute;
+      right: 14px;
+      bottom: 210px;
+      z-index: 5;
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      align-items: center;
+      gap: 10px;
+      width: min(360px, calc(100vw - 28px));
+      padding: 10px;
+      border: 2px solid rgba(252, 234, 189, 0.38);
+      background: rgba(34, 27, 23, 0.84);
+      box-shadow: 0 6px 0 rgba(35, 24, 18, 0.16);
+      color: #f0dfbd;
+      text-shadow: 0 1px 0 #000;
+      pointer-events: none;
+    }
+
+    .assistant-avatar {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border: 2px solid rgba(255, 226, 161, 0.72);
+      background: linear-gradient(180deg, #6faa4e, #345f38);
+      color: #fff0b8;
+      font-size: 22px;
+      font-weight: 900;
+      box-shadow: inset 0 2px 0 rgba(255, 244, 190, 0.34);
+    }
+
+    .assistant strong {
+      display: block;
+      color: #ffe2a1;
+      font-size: 13px;
+      line-height: 1.1;
+    }
+
+    .assistant p {
+      margin: 4px 0 0;
+      color: #ead8b9;
+      font-size: 12px;
+      line-height: 1.3;
+    }
+
     .overlay {
       position: absolute;
       inset: 0;
@@ -353,6 +399,28 @@
       .log {
         display: none;
       }
+
+      .assistant {
+        right: 8px;
+        bottom: 170px;
+        grid-template-columns: 34px 1fr;
+        gap: 8px;
+        padding: 8px;
+      }
+
+      .assistant-avatar {
+        width: 34px;
+        height: 34px;
+        font-size: 18px;
+      }
+
+      .assistant strong {
+        font-size: 12px;
+      }
+
+      .assistant p {
+        font-size: 11px;
+      }
     }
   </style>
 </head>
@@ -379,6 +447,13 @@
     </section>
     <section id="shop" class="shop" aria-label="Add life"></section>
     <section id="log" class="log" aria-live="polite"></section>
+    <aside id="assistant" class="assistant" aria-live="polite" aria-label="Assistant gardener">
+      <div class="assistant-avatar" aria-hidden="true">M</div>
+      <div>
+        <strong>Mira, assistant gardener</strong>
+        <p id="assistantTip">Start with moss and a fern. I will keep an eye on the dome balance.</p>
+      </div>
+    </aside>
 
     <div id="overlay" class="overlay">
       <div class="modal">
@@ -402,6 +477,7 @@
     const zoomOutBtn = document.querySelector("#zoomOut");
     const zoomInBtn = document.querySelector("#zoomIn");
     const resetCameraBtn = document.querySelector("#resetCamera");
+    const assistantTipEl = document.querySelector("#assistantTip");
 
     const actions = [
       { id: "moss", name: "Moss", note: "+nutrients / humid", type: "plant", cost: 2, color: "#6faa4e" },
@@ -452,6 +528,11 @@
       mistClouds: [],
       creatureNursery: {},
       messages: [],
+      assistant: {
+        key: "welcome",
+        tip: "Start with moss and a fern. I will keep an eye on the dome balance.",
+        nextAt: 0
+      },
       gameOver: false
     };
 
@@ -500,6 +581,7 @@
           document.querySelectorAll(".shop button").forEach((el) => {
             el.classList.toggle("selected", el.dataset.action === state.selected);
           });
+          updateAssistant(true);
         });
         shopEl.appendChild(button);
       });
@@ -690,6 +772,7 @@
         makeParticles(x, y, "#c8f2ee", 16);
         makeMistCloud(x, y);
         addMessage("Mist rolls across the glass. Humidity surges.");
+        updateAssistant(true);
         return;
       }
       if (kind === "compost") {
@@ -699,6 +782,7 @@
         state.densityRelief = clamp(state.densityRelief - 5, 0, 85);
         makeParticles(x, y, "#9b7448", 14);
         addMessage("Compost feeds the soil. Nutrients rise, but density increases.");
+        updateAssistant(true);
         return;
       }
 
@@ -712,6 +796,7 @@
       state.densityRelief = clamp(state.densityRelief - addedDensity, 0, 85);
       makeParticles(x, y, action.color, 12);
       addMessage(`${action.name} added to the dome.`);
+      updateAssistant(true);
     }
 
     function seedWorld() {
@@ -1093,6 +1178,82 @@
       const hour = Math.floor(state.time);
       const phase = hour < 6 ? "night" : hour < 12 ? "morning" : hour < 18 ? "afternoon" : "dusk";
       clockEl.textContent = `Day ${state.day} - ${phase} - energy ${Math.round(state.energy)}`;
+      updateAssistant();
+    }
+
+    function assistantAdvice() {
+      const counts = countKinds();
+      const plants = counts.moss + counts.fern + counts.sprout + counts.mushroom + counts.bamboo;
+      const creatures = counts.mite + counts.glowbug + counts.snail;
+      const selected = actions.find((action) => action.id === state.selected);
+
+      if (!state.running) {
+        return ["welcome", "Start with moss and a fern. I will keep an eye on the dome balance."];
+      }
+
+      if (state.gameOver) {
+        return ["collapse", "The readings tell the story. Restart, then correct the first meter that turns gold."];
+      }
+
+      if (state.energy < 4) {
+        return ["energy", "Let the dome breathe for a moment. Energy returns over time and at the start of each day."];
+      }
+
+      if (state.humidity < 34) {
+        return ["dry", "Humidity is fading. Add mist or moss before fragile plants dry out."];
+      }
+
+      if (state.humidity > 86) {
+        return ["wet", "The air is heavy. Pause on mist and add new life slowly until humidity settles."];
+      }
+
+      if (state.oxygen < 36) {
+        return ["oxygen", "Oxygen is low. Ferns and bamboo are the cleanest fix, but watch their nutrient draw."];
+      }
+
+      if (state.nutrients < 26) {
+        return ["nutrients", "Nutrients are thin. Compost helps quickly; fungus turns waste into longer-term recovery."];
+      }
+
+      if (state.food < 28 && creatures > 0) {
+        return ["food", "The animals are hungry. Add sprouts or let existing plants mature before adding more creatures."];
+      }
+
+      if (state.waste > 58) {
+        return ["waste", "Waste is climbing. Fungus recycles decay, and snails help graze the excess down."];
+      }
+
+      if (state.density > 68) {
+        return ["density", "The dome is crowded. Hold off on new life until density relaxes and food stabilizes."];
+      }
+
+      if (plants < 4) {
+        return ["plants", "Build the green base first. Moss, fern, and sprouts make the dome easier to recover."];
+      }
+
+      if (creatures === 0 && plants >= 5 && state.food > 42 && state.oxygen > 48) {
+        return ["creatures", "The habitat can host a small creature now. Start with one type and watch food afterward."];
+      }
+
+      if (state.stability > 82 && state.items.length > 10) {
+        return ["thriving", "This dome is humming. Diversify slowly instead of flooding it with one species."];
+      }
+
+      return ["steady", `${selected.name} is selected. The readings are steady, so place it with intention and watch the next meter shift.`];
+    }
+
+    function updateAssistant(force = false) {
+      const now = performance.now();
+      if (!force && now < state.assistant.nextAt) return;
+
+      const [key, tip] = assistantAdvice();
+      if (force || key !== state.assistant.key || tip !== state.assistant.tip) {
+        state.assistant.key = key;
+        state.assistant.tip = tip;
+        assistantTipEl.textContent = tip;
+      }
+
+      state.assistant.nextAt = now + 2200;
     }
 
     function showEnd(title, body) {
@@ -1100,6 +1261,7 @@
       overlay.querySelector("h2").textContent = title;
       overlay.querySelector("p").textContent = body;
       startBtn.textContent = "Restart Dome";
+      updateAssistant(true);
     }
 
     function draw() {
@@ -2054,11 +2216,17 @@
         mistClouds: [],
         creatureNursery: {},
         messages: [],
+        assistant: {
+          key: "welcome",
+          tip: "Start with moss and a fern. I will keep an eye on the dome balance.",
+          nextAt: 0
+        },
         gameOver: false
       });
       overlay.classList.add("hidden");
       seedWorld();
       updateUi();
+      updateAssistant(true);
     }
 
     canvas.addEventListener("pointerdown", (event) => {

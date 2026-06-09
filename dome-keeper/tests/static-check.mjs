@@ -11,6 +11,8 @@ const checks = [
   ["has a start button", /id="startBtn"/],
   ["has climate meters", /id="meters"/],
   ["has shop controls", /id="shop"/],
+  ["has an assistant gardener panel", /id="assistant"/],
+  ["updates assistant advice", /function\s+updateAssistant/],
   ["uses accessible region labels", /aria-label=/],
   ["keeps canvas touch input browser-safe", /touch-action:\s*none/],
   ["defines a game loop", /requestAnimationFrame\(/],
