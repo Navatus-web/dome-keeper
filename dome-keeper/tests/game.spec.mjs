@@ -4,9 +4,10 @@ test("game opens and paints the dome canvas", async ({ page }) => {
   await page.goto("/");
 
   await expect(page).toHaveTitle(/Dome Keeper/);
-  await expect(page.getByRole("button", { name: /begin tending/i })).toBeVisible();
+  const startButton = page.getByRole("button", { name: /start day 1|restart dome/i });
+  await expect(startButton).toBeVisible();
 
-  await page.getByRole("button", { name: /begin tending/i }).click();
+  await startButton.click();
   await expect(page.locator("#overlay")).toBeHidden();
   await expect(page.locator("#world")).toBeVisible();
 
