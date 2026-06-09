@@ -215,6 +215,12 @@
       color: #172514;
     }
 
+    .pause-toggle.active {
+      border-color: #f9f0bd;
+      background: #d7b15a;
+      color: #241a12;
+    }
+
     .meters-drawer {
       position: absolute;
       top: 50%;
@@ -283,8 +289,9 @@
 
     .shop-drawer {
       position: absolute;
+      top: 50%;
       right: 14px;
-      bottom: 8px;
+      transform: translateY(-50%);
       z-index: 6;
       display: grid;
       justify-items: end;
@@ -304,8 +311,9 @@
 
     .shop {
       position: absolute;
-      right: 0;
-      bottom: calc(100% + 8px);
+      top: 50%;
+      right: calc(100% + 8px);
+      bottom: auto;
       display: grid;
       width: min(340px, calc(100vw - 28px));
       max-height: min(620px, calc(100vh - 112px));
@@ -316,11 +324,32 @@
       background: rgba(34, 27, 23, 0.82);
       box-shadow: 0 8px 0 rgba(35, 24, 18, 0.16);
       transition: transform 240ms ease, opacity 180ms ease;
+      transform: translateY(-50%);
       pointer-events: auto;
     }
 
+    .shop-group {
+      display: grid;
+      gap: 7px;
+    }
+
+    .shop-group + .shop-group {
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(252, 234, 189, 0.22);
+    }
+
+    .shop-heading {
+      margin: 0;
+      color: #ffe2a1;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0;
+      text-shadow: 0 1px 0 #000;
+    }
+
     .shop-drawer.closed .shop {
-      transform: translateX(calc(100% + 18px));
+      transform: translate(calc(100% + 18px), -50%);
       opacity: 0;
       pointer-events: none;
     }
@@ -330,7 +359,8 @@
       right: 14px;
       top: 154px;
       z-index: 5;
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 8px;
       width: 244px;
       padding: 8px;
@@ -341,11 +371,15 @@
     }
 
     .camera-controls button {
-      flex: 1;
       width: auto;
       min-height: 38px;
       padding: 6px;
       font-size: 16px;
+    }
+
+    .rotate-left,
+    .rotate-right {
+      grid-column: span 2;
     }
 
     button {
@@ -612,23 +646,54 @@
 
     .icon-earthworm::before {
       left: 7px;
-      top: 20px;
+      top: 18px;
       width: 35px;
-      height: 12px;
+      height: 14px;
       border-radius: 999px;
-      background: #b86d5d;
-      box-shadow: inset 7px 0 0 #d18a75, inset -6px 0 0 #7e453b;
+      background: linear-gradient(135deg, #d48f79, #a75f53 54%, #713c34);
+      box-shadow: inset 7px 0 0 rgba(241, 185, 164, 0.52), inset -8px 0 0 rgba(88, 48, 42, 0.56);
       transform: rotate(-12deg);
     }
 
     .icon-earthworm::after {
-      left: 15px;
-      top: 18px;
-      width: 3px;
-      height: 15px;
-      background: rgba(66, 38, 31, 0.38);
-      box-shadow: 7px 0 0 rgba(66, 38, 31, 0.32), 14px 0 0 rgba(66, 38, 31, 0.28);
+      left: 13px;
+      top: 17px;
+      width: 17px;
+      height: 16px;
+      background: rgba(173, 93, 86, 0.45);
+      box-shadow:
+        3px 0 0 rgba(76, 44, 38, 0.22),
+        7px 0 0 rgba(76, 44, 38, 0.22),
+        11px 0 0 rgba(76, 44, 38, 0.22);
       transform: rotate(-12deg);
+    }
+
+    .icon-butterfly {
+      background: radial-gradient(circle at 50% 42%, #f6efd4, #7d9b66 34%, #3f5036 72%);
+    }
+
+    .icon-butterfly::before {
+      left: 9px;
+      top: 13px;
+      width: 14px;
+      height: 20px;
+      border-radius: 50% 55% 48% 55%;
+      background: rgba(245, 179, 98, 0.9);
+      box-shadow:
+        18px 0 0 rgba(244, 163, 106, 0.92),
+        4px 15px 0 rgba(239, 214, 118, 0.78),
+        14px 15px 0 rgba(239, 214, 118, 0.78);
+      transform: rotate(-12deg);
+    }
+
+    .icon-butterfly::after {
+      left: 22px;
+      top: 12px;
+      width: 4px;
+      height: 24px;
+      border-radius: 999px;
+      background: #2e2319;
+      box-shadow: 0 0 0 1px rgba(255, 241, 196, 0.14);
     }
 
     .icon-mist {
@@ -647,6 +712,52 @@
 
     .icon-compost {
       background: linear-gradient(180deg, #b28a5a, #513623);
+    }
+
+    .icon-rock {
+      background: linear-gradient(180deg, #b7c2ca, #4e5d68);
+    }
+
+    .icon-rock::before {
+      left: 9px;
+      top: 14px;
+      width: 32px;
+      height: 24px;
+      background: linear-gradient(135deg, #d5dce3, #6f7e88 58%, #45515a);
+      clip-path: polygon(14% 100%, 0 50%, 18% 14%, 48% 0, 82% 12%, 100% 44%, 88% 100%);
+      box-shadow: inset 4px 4px 0 rgba(255, 255, 255, 0.18);
+    }
+
+    .icon-rock::after {
+      left: 16px;
+      top: 20px;
+      width: 16px;
+      height: 10px;
+      background: rgba(255, 248, 232, 0.2);
+      clip-path: polygon(0 100%, 18% 18%, 100% 0, 74% 100%);
+    }
+
+    .icon-rockfeature {
+      background: linear-gradient(180deg, #8e99a4, #353f48);
+    }
+
+    .icon-rockfeature::before {
+      left: 6px;
+      top: 18px;
+      width: 38px;
+      height: 18px;
+      background: linear-gradient(135deg, #adb8c2, #59646d 55%, #2f3941);
+      clip-path: polygon(6% 100%, 0 54%, 15% 20%, 48% 0, 86% 18%, 100% 48%, 90% 100%);
+      box-shadow: inset 4px 3px 0 rgba(255, 255, 255, 0.12);
+    }
+
+    .icon-rockfeature::after {
+      left: 14px;
+      top: 20px;
+      width: 19px;
+      height: 8px;
+      background: rgba(228, 236, 242, 0.16);
+      clip-path: polygon(0 100%, 22% 18%, 100% 0, 82% 100%);
     }
 
     .icon-compost::before {
@@ -900,8 +1011,8 @@
       }
 
       .shop-drawer {
+        top: 50%;
         right: 8px;
-        bottom: 6px;
       }
 
       .shop-toggle {
@@ -994,9 +1105,12 @@
       <section id="meters" class="meters" aria-label="Climate meters"></section>
     </div>
     <section class="camera-controls" aria-label="Camera controls">
+      <button id="pauseToggle" class="pause-toggle" type="button" aria-pressed="false" title="Pause game">||</button>
       <button id="zoomOut" type="button" title="Zoom out">-</button>
       <button id="zoomIn" type="button" title="Zoom in">+</button>
       <button id="resetCamera" type="button" title="Reset view">o</button>
+      <button id="rotateLeft" class="rotate-left" type="button" title="Rotate table left"><</button>
+      <button id="rotateRight" class="rotate-right" type="button" title="Rotate table right">></button>
     </section>
     <div id="shopDrawer" class="shop-drawer closed">
       <button id="shopToggle" class="shop-toggle" type="button" aria-expanded="false" aria-controls="shop">Add Life</button>
@@ -1036,24 +1150,30 @@
     const timeDialEl = document.querySelector("#timeDial");
     const overlay = document.querySelector("#overlay");
     const startBtn = document.querySelector("#startBtn");
+    const pauseToggleBtn = document.querySelector("#pauseToggle");
     const zoomOutBtn = document.querySelector("#zoomOut");
     const zoomInBtn = document.querySelector("#zoomIn");
     const resetCameraBtn = document.querySelector("#resetCamera");
+    const rotateLeftBtn = document.querySelector("#rotateLeft");
+    const rotateRightBtn = document.querySelector("#rotateRight");
     const assistantTipEl = document.querySelector("#assistantTip");
     const aiToggleBtn = document.querySelector("#aiToggle");
 
     const actions = [
-      { id: "moss", name: "Moss", note: "+nutrients -humidity", type: "plant", cost: 2, color: "#6faa4e" },
-      { id: "fern", name: "Fern", note: "+oxygen -nutrients", type: "plant", cost: 7, color: "#3f9a78" },
-      { id: "sprout", name: "Sprout", note: "fast food crop", type: "plant", cost: 5, color: "#9bc75a" },
-      { id: "mushroom", name: "Fungus", note: "recycles waste", type: "plant", cost: 6, color: "#d9b67a" },
-      { id: "bamboo", name: "Bamboo", note: "tall oxygen crop", type: "plant", cost: 9, color: "#6ca84f" },
-      { id: "mite", name: "Mites", note: "eat soft plants", type: "creature", cost: 5, color: "#b8704a" },
-      { id: "glowbug", name: "Glowbug", note: "pollinates", type: "creature", cost: 8, color: "#e2cf5a" },
-      { id: "snail", name: "Snail", note: "grazes fungus", type: "creature", cost: 7, color: "#8e8564" },
-      { id: "earthworm", name: "Earthworm", note: "-waste +nutrients +humidity / dense", type: "creature", cost: 10, color: "#b86d5d" },
-      { id: "mist", name: "Mist", note: "+humidity", type: "climate", cost: 3, color: "#b5e8e3" },
-      { id: "compost", name: "Compost", note: "+nutrients", type: "climate", cost: 2, color: "#9b7448" }
+      { id: "moss", name: "Moss", note: "+nutrients -humidity", type: "plant", group: "plants", cost: 2, color: "#6faa4e" },
+      { id: "fern", name: "Fern", note: "+oxygen -nutrients", type: "plant", group: "plants", cost: 7, color: "#3f9a78" },
+      { id: "sprout", name: "Sprout", note: "fast food crop", type: "plant", group: "plants", cost: 5, color: "#9bc75a" },
+      { id: "mushroom", name: "Fungus", note: "recycles waste", type: "plant", group: "plants", cost: 6, color: "#d9b67a" },
+      { id: "bamboo", name: "Bamboo", note: "tall oxygen crop", type: "plant", group: "plants", cost: 9, color: "#6ca84f" },
+      { id: "mite", name: "Mites", note: "eat soft plants", type: "creature", group: "bugs", cost: 5, color: "#b8704a" },
+      { id: "glowbug", name: "Glowbug", note: "pollinates", type: "creature", group: "bugs", cost: 8, color: "#e2cf5a" },
+      { id: "snail", name: "Snail", note: "grazes fungus", type: "creature", group: "bugs", cost: 7, color: "#8e8564" },
+      { id: "earthworm", name: "Earthworm", note: "-waste +nutrients +humidity / dense", type: "creature", group: "bugs", cost: 10, color: "#b86d5d" },
+      { id: "butterfly", name: "Butterfly", note: "pollinates +food", type: "creature", group: "bugs", cost: 9, color: "#f1a764" },
+      { id: "mist", name: "Mist", note: "+humidity", type: "climate", group: "utilities", cost: 3, color: "#b5e8e3" },
+      { id: "compost", name: "Compost", note: "+nutrients", type: "climate", group: "utilities", cost: 2, color: "#9b7448" },
+      { id: "rock", name: "Standing Rock", note: "tall decorative anchor", type: "decoration", group: "decorations", cost: 4, color: "#7f8d97" },
+      { id: "rockfeature", name: "Rock Feature", note: "flat darker stone", type: "decoration", group: "decorations", cost: 4, color: "#5e6870" }
     ];
 
     const meterDefs = [
@@ -1099,12 +1219,15 @@
       },
       autopilot: {
         enabled: false,
-        nextAt: 0
+        nextAt: 0,
+        thought: "I am watching the dome for the next imbalance.",
+        focus: "idle"
       },
       shopOpen: false,
       metersOpen: false,
       miraLeftDocked: false,
       miraDockAt: 0,
+      paused: false,
       gameOver: false
     };
 
@@ -1147,6 +1270,43 @@
       metersToggleBtn.setAttribute("aria-expanded", state.metersOpen ? "true" : "false");
     }
 
+    function togglePause(force) {
+      if (!state.running || state.gameOver) return;
+      state.paused = typeof force === "boolean" ? force : !state.paused;
+      pauseToggleBtn.textContent = state.paused ? ">" : "||";
+      pauseToggleBtn.setAttribute("aria-pressed", state.paused ? "true" : "false");
+      pauseToggleBtn.title = state.paused ? "Resume game" : "Pause game";
+      pauseToggleBtn.classList.toggle("active", state.paused);
+      if (state.paused) {
+        addMessage("Terrarium paused.");
+      } else {
+        last = performance.now();
+        addMessage("Terrarium resumed.");
+      }
+      updateUi();
+      updateAssistant(true);
+    }
+
+    function rotateTable(delta) {
+      state.camera.angle += delta;
+    }
+
+    function autopilotThought(kind = null, ecosystem = summarizeEcosystem()) {
+      const { counts, plants, creatures } = ecosystem;
+      if (state.energy < 4) return ["reserve", "Holding position. Energy is too low for a safe intervention."];
+      if (state.density > 72) return ["crowded", "Pausing growth. Density is high, so I am avoiding new pressure."];
+      if (state.food < 24) return ["food", kind === "sprout" ? "Food is slipping. I am planting sprouts to rebuild the cycle." : "Food is slipping. I am prioritizing edible growth first."];
+      if (state.oxygen < 36) return ["oxygen", kind === "fern" || kind === "bamboo" ? "Air is thinning. I am steering toward oxygen-rich plants." : "Air is thinning. I am looking for the cleanest oxygen fix."];
+      if (state.humidity < 34) return ["humidity-low", kind === "mist" ? "Humidity is falling. I am using mist to stop the dry slide." : "Humidity is falling. I am trying to stabilize moisture."];
+      if (state.humidity > 84) return ["humidity-high", "Humidity is heavy. I am leaning on moss and restraint to pull it down."];
+      if (state.nutrients < 28) return ["nutrients", kind === "mushroom" || kind === "earthworm" || kind === "compost" ? "Soil is thinning. I am feeding the nutrient loop before growth stalls." : "Soil is thinning. I am looking for nutrient recovery."];
+      if (state.waste > 58) return ["waste", kind === "mushroom" || kind === "earthworm" || kind === "snail" ? "Waste is building. I am sending in recyclers before rot spreads." : "Waste is building. I am prioritizing cleanup."];
+      if (creatures === 0 && plants >= 5) return ["seed-fauna", "The habitat is ready. I am introducing gentle animal life carefully."];
+      if (plants < 5) return ["green-base", "The green base is still thin. I am reinforcing plants before diversifying."];
+      if (kind) return ["steady-plan", `I think ${actions.find((action) => action.id === kind)?.name || "this"} is the cleanest next move.`];
+      return ["steady-watch", "The dome is steady. I am watching for the first meter that drifts."];
+    }
+
     function selectAction(actionId) {
       state.selected = actionId;
       document.querySelectorAll(".shop button").forEach((el) => {
@@ -1163,24 +1323,40 @@
         metersEl.appendChild(row);
       });
 
-      actions.forEach((action) => {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.dataset.action = action.id;
-        button.innerHTML = `
-          <span class="action-icon icon-${action.id}" aria-hidden="true"></span>
-          <span class="action-copy">
-            <strong>${action.name}</strong>
-            <small>${action.type} - ${action.note}</small>
-          </span>
-          <span class="action-cost">${action.cost}</span>
-        `;
-        button.addEventListener("click", () => {
-          selectAction(action.id);
-          state.shopOpen = false;
-          updateShopDrawer();
-        });
-        shopEl.appendChild(button);
+      [
+        ["plants", "Plants"],
+        ["bugs", "Bugs"],
+        ["utilities", "Utilities"],
+        ["decorations", "Decorations"]
+      ].forEach(([groupKey, groupLabel]) => {
+        const group = document.createElement("div");
+        group.className = "shop-group";
+        group.setAttribute("aria-label", groupLabel);
+        group.innerHTML = `<h3 class="shop-heading">${groupLabel}</h3>`;
+
+        actions
+          .filter((action) => action.group === groupKey)
+          .forEach((action) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.dataset.action = action.id;
+            button.innerHTML = `
+              <span class="action-icon icon-${action.id}" aria-hidden="true"></span>
+              <span class="action-copy">
+                <strong>${action.name}</strong>
+                <small>${action.type} - ${action.note}</small>
+              </span>
+              <span class="action-cost">${action.cost}</span>
+            `;
+            button.addEventListener("click", () => {
+              selectAction(action.id);
+              state.shopOpen = false;
+              updateShopDrawer();
+            });
+            group.appendChild(button);
+          });
+
+        shopEl.appendChild(group);
       });
 
       document.querySelector('[data-action="moss"]').classList.add("selected");
@@ -1287,7 +1463,10 @@
     function findItemAt(x, y) {
       for (let i = state.items.length - 1; i >= 0; i--) {
         const item = state.items[i];
-        const hitSize = (item.type === "plant" ? 20 : 18) * item.size * itemDepthScale(item);
+        const hitSize =
+          item.type === "decoration"
+            ? Math.min(34, 5.8 * item.size * itemDepthScale(item))
+            : (item.type === "plant" ? 20 : 18) * item.size * itemDepthScale(item);
         if (Math.hypot(item.x - x, item.y - y) <= hitSize) {
           return item;
         }
@@ -1312,6 +1491,16 @@
       const base = actions.find((action) => action.id === kind);
       const world = typeof x === "object" ? x : screenToWorld(x, y);
       const now = gameDay();
+      const butterflyPalettes = [
+        { primary: "rgba(244, 162, 97, 0.88)", secondary: "rgba(239, 210, 96, 0.84)", spot: "#fff4cb" },
+        { primary: "rgba(125, 192, 122, 0.9)", secondary: "rgba(196, 229, 111, 0.84)", spot: "#eefbd8" },
+        { primary: "rgba(126, 161, 232, 0.9)", secondary: "rgba(194, 217, 255, 0.82)", spot: "#eef4ff" }
+      ];
+      const mitePalettes = [
+        { primary: "#ad6744", secondary: "#c9875d" },
+        { primary: "#8b5f95", secondary: "#bc8bc9" },
+        { primary: "#5d8a63", secondary: "#8fc596" }
+      ];
       const item = {
         id: crypto.randomUUID ? crypto.randomUUID() : String(Math.random()),
         kind,
@@ -1348,10 +1537,39 @@
         item.maxSize = rand(1.1, 1.34);
       }
       if (kind === "glowbug") {
-        item.vx = rand(-0.34, 0.34);
-        item.vy = rand(-0.28, 0.28);
+        item.vx = rand(-0.68, 0.68);
+        item.vy = rand(-0.56, 0.56);
         item.lift = rand(38, 82);
         item.liftTarget = rand(48, 104);
+      }
+      if (kind === "butterfly") {
+        const palette = butterflyPalettes[Math.floor(rand(0, butterflyPalettes.length))];
+        item.vx = rand(-0.24, 0.24);
+        item.vy = rand(-0.2, 0.2);
+        item.lift = rand(22, 56);
+        item.liftTarget = rand(30, 74);
+        item.size = rand(0.88, 1.12);
+        item.maxSize = rand(0.96, 1.18);
+        item.primaryColor = palette.primary;
+        item.secondaryColor = palette.secondary;
+        item.spotColor = palette.spot;
+      }
+      if (kind === "mite") {
+        const palette = mitePalettes[Math.floor(rand(0, mitePalettes.length))];
+        item.primaryColor = palette.primary;
+        item.secondaryColor = palette.secondary;
+      }
+      if (kind === "rock") {
+        item.vx = 0;
+        item.vy = 0;
+        item.size = rand(4.8, 5.9);
+        item.maxSize = item.size;
+      }
+      if (kind === "rockfeature") {
+        item.vx = 0;
+        item.vy = 0;
+        item.size = rand(4.9, 5.8);
+        item.maxSize = item.size;
       }
       updateScreenPosition(item);
       return item;
@@ -1359,7 +1577,7 @@
 
     function place(kind, x, y) {
       const action = actions.find((entry) => entry.id === kind);
-      if (!state.running || state.gameOver || !action || !inDome(x, y)) return;
+      if (!state.running || state.paused || state.gameOver || !action || !inDome(x, y)) return;
       if (state.energy < action.cost) {
         addMessage("Not enough keeper energy. Wait for the dome to recover.");
         return;
@@ -1372,7 +1590,7 @@
       state.energy -= action.cost;
 
       if (kind === "mist") {
-        state.humidity = clamp(state.humidity + 22, 0, 100);
+        state.humidity = clamp(state.humidity + 60, 0, 100);
         state.oxygen = clamp(state.oxygen - 2, 0, 100);
         makeParticles(x, y, "#c8f2ee", 16);
         makeMistCloud(x, y);
@@ -1396,7 +1614,11 @@
       if (kind === "moss") {
         state.nutrients = clamp(state.nutrients + 3, 0, 100);
       }
-      const addedDensity = kind === "earthworm" ? 8.5 : action.type === "plant" ? 2.2 : 3.6;
+      const addedDensity =
+        kind === "earthworm" ? 8.5 :
+        action.type === "plant" ? 2.2 :
+        action.type === "decoration" ? 0 :
+        3.6;
       state.density = clamp(state.density + addedDensity, 0, 100);
       state.densityRelief = clamp(state.densityRelief - addedDensity, 0, 85);
       makeParticles(x, y, action.color, 12);
@@ -1410,45 +1632,269 @@
       place(kind, screen.x, screen.y);
     }
 
-    function pickAutopilotAction() {
-      const counts = countKinds();
-      const plants = counts.moss + counts.fern + counts.sprout + counts.mushroom + counts.bamboo;
-      const creatures = counts.mite + counts.glowbug + counts.snail + counts.earthworm;
+    function summarizeEcosystem(counts = countKinds()) {
+      return {
+        counts,
+        plants: counts.moss + counts.fern + counts.sprout + counts.mushroom + counts.bamboo,
+        creatures: counts.mite + counts.glowbug + counts.snail + counts.earthworm + counts.butterfly
+      };
+    }
 
-      if (state.density > 74 || state.energy < 2) return null;
-      if (state.humidity < 34) return "mist";
-      if (state.humidity > 82 && state.nutrients > 24) return "moss";
-      if (state.nutrients < 24) return state.waste > 34 ? "mushroom" : "compost";
-      if (state.oxygen < 40) return state.nutrients > 36 ? "fern" : "moss";
-      if (state.food < 30 && creatures > 0) return "sprout";
-      if (state.waste > 68 && state.density < 54) return "earthworm";
-      if (state.waste > 58) return counts.mushroom < 3 ? "mushroom" : "snail";
-      if (plants < 3) return counts.moss < 2 ? "moss" : "fern";
-      if (plants < 6) return counts.sprout < 2 ? "sprout" : "fern";
-      if (creatures === 0 && state.food > 44 && state.oxygen > 48) return "glowbug";
-      if (state.food > 76 && state.oxygen > 54 && state.density < 56) return counts.snail < 1 ? "snail" : "mite";
-      if (state.stability > 82 && state.energy > 18 && state.density < 62) {
-        const options = ["moss", "fern", "sprout", "mushroom", "bamboo"];
-        return options[Math.floor(rand(0, options.length))];
+    function previewAutopilotAction(kind, ecosystem = summarizeEcosystem()) {
+      const snapshot = {
+        humidity: state.humidity,
+        oxygen: state.oxygen,
+        nutrients: state.nutrients,
+        waste: state.waste,
+        food: state.food,
+        density: state.density,
+        plants: ecosystem.plants,
+        creatures: ecosystem.creatures
+      };
+
+      switch (kind) {
+        case "mist":
+          snapshot.humidity += 60;
+          snapshot.oxygen -= 2;
+          break;
+        case "compost":
+          snapshot.nutrients += 11;
+          snapshot.waste += 5;
+          snapshot.density += 5;
+          break;
+        case "moss":
+          snapshot.humidity -= 5;
+          snapshot.nutrients += 3;
+          snapshot.oxygen += 1;
+          snapshot.density += 2.2;
+          snapshot.plants += 1;
+          break;
+        case "fern":
+          snapshot.oxygen += 7;
+          snapshot.humidity += 2;
+          snapshot.nutrients -= 5;
+          snapshot.density += 2.2;
+          snapshot.plants += 1;
+          break;
+        case "sprout":
+          snapshot.food += 9;
+          snapshot.nutrients -= 3;
+          snapshot.density += 2.2;
+          snapshot.plants += 1;
+          break;
+        case "mushroom":
+          snapshot.waste -= 13;
+          snapshot.nutrients += 5;
+          snapshot.density += 2.2;
+          snapshot.plants += 1;
+          break;
+        case "bamboo":
+          snapshot.oxygen += 10;
+          snapshot.humidity += 1;
+          snapshot.nutrients -= 8;
+          snapshot.density += 3;
+          snapshot.plants += 1;
+          break;
+        case "earthworm":
+          snapshot.waste -= 15;
+          snapshot.nutrients += 8;
+          snapshot.humidity += 7;
+          snapshot.density += 8.5;
+          snapshot.creatures += 1;
+          break;
+        case "butterfly":
+          snapshot.food += 6;
+          snapshot.density += 3.6;
+          snapshot.creatures += 1;
+          break;
+        case "glowbug":
+          snapshot.food += 3;
+          snapshot.density += 3.6;
+          snapshot.creatures += 1;
+          break;
+        case "snail":
+          snapshot.waste -= 5;
+          snapshot.density += 3.6;
+          snapshot.creatures += 1;
+          break;
+        case "mite":
+          snapshot.food -= 3;
+          snapshot.density += 3.6;
+          snapshot.creatures += 1;
+          break;
       }
-      return null;
+
+      snapshot.humidity = clamp(snapshot.humidity, 0, 100);
+      snapshot.oxygen = clamp(snapshot.oxygen, 0, 100);
+      snapshot.nutrients = clamp(snapshot.nutrients, 0, 100);
+      snapshot.waste = clamp(snapshot.waste, 0, 100);
+      snapshot.food = clamp(snapshot.food, 0, 100);
+      snapshot.density = clamp(snapshot.density, 0, 100);
+      return snapshot;
+    }
+
+    function ecosystemTargets(ecosystem = summarizeEcosystem()) {
+      const { plants, creatures, counts } = ecosystem;
+      return {
+        humidity: plants < 4 ? 64 : 60,
+        oxygen: creatures > 3 ? 66 : 58,
+        nutrients: plants > 7 ? 58 : 48,
+        waste: counts.earthworm > 0 || counts.mushroom > 1 ? 18 : 24,
+        food: creatures > 0 ? 58 : 44,
+        density: plants > 8 || creatures > 4 ? 46 : 38
+      };
+    }
+
+    function ecosystemInstability(snapshot, ecosystem = summarizeEcosystem()) {
+      const target = ecosystemTargets(ecosystem);
+      return (
+        Math.abs(snapshot.humidity - target.humidity) * 1.1 +
+        Math.abs(snapshot.oxygen - target.oxygen) * 0.95 +
+        Math.abs(snapshot.nutrients - target.nutrients) * 0.72 +
+        Math.max(0, snapshot.waste - target.waste) * 1.55 +
+        Math.max(0, target.food - snapshot.food) * 1.7 +
+        Math.max(0, snapshot.density - target.density) * 1.9 +
+        Math.max(0, 34 - snapshot.oxygen) * 1.5 +
+        Math.max(0, 28 - snapshot.humidity) * 1.45 +
+        Math.max(0, snapshot.humidity - 88) * 1.45
+      );
+    }
+
+    function scoreAutopilotAction(kind, ecosystem = summarizeEcosystem()) {
+      if (!autopilotCanPlace(kind, ecosystem)) return -Infinity;
+
+      const counts = ecosystem.counts;
+      const preview = previewAutopilotAction(kind, ecosystem);
+      let score = 100 - ecosystemInstability(preview, ecosystem);
+
+      if (state.food < 24) {
+        if (kind === "sprout") score += 24;
+        if (kind === "moss") score += 7;
+      }
+      if (state.oxygen < 40) {
+        if (kind === "fern") score += 22;
+        if (kind === "bamboo") score += 10;
+      }
+      if (state.humidity < 34) {
+        if (kind === "mist") score += 26;
+        if (kind === "earthworm") score += 8;
+      }
+      if (state.humidity > 82 && kind === "moss") score += 16;
+      if (state.waste > 54) {
+        if (kind === "mushroom") score += 20;
+        if (kind === "earthworm") score += 15;
+        if (kind === "snail") score += 8;
+      }
+      if (state.nutrients < 28) {
+        if (kind === "mushroom") score += 12;
+        if (kind === "earthworm") score += 10;
+        if (kind === "compost") score += 8;
+      }
+      if (state.density > 62) {
+        if (kind === "earthworm" || kind === "butterfly" || kind === "glowbug" || kind === "snail" || kind === "mite") score -= 22;
+        if (kind === "compost") score -= 8;
+      }
+      if (state.energy < 10 && kind !== "mist" && kind !== "compost" && kind !== "moss") score -= 8;
+      if (counts.mite > 0 && kind === "mite") score -= 16;
+      if (counts.snail > 1 && kind === "snail") score -= 10;
+      if (counts.butterfly > 2 && kind === "butterfly") score -= 12;
+      if (counts.earthworm > 1 && kind === "earthworm") score -= 14;
+      if (ecosystem.plants < 5 && (kind === "butterfly" || kind === "glowbug" || kind === "snail")) score -= 18;
+      if (ecosystem.creatures >= ecosystem.plants && kind !== "moss" && kind !== "fern" && kind !== "sprout" && kind !== "mushroom" && kind !== "bamboo") score -= 24;
+      if (state.stability > 88 && ecosystem.plants >= 6 && kind === "butterfly") score += 8;
+      return score;
+    }
+
+    function autopilotCanPlace(kind, ecosystem = summarizeEcosystem()) {
+      const action = actions.find((entry) => entry.id === kind);
+      if (!action || state.energy < action.cost) return false;
+
+      const counts = ecosystem.counts;
+      const preview = previewAutopilotAction(kind, ecosystem);
+
+      if (kind === "mist") return state.humidity <= 80;
+      if (kind === "compost") return preview.density < 82;
+      if (kind === "earthworm") return state.density < 58 && state.humidity < 84;
+      if (kind === "moss") return state.humidity >= 30 && preview.density < 84;
+      if (kind === "fern" || kind === "bamboo") return preview.nutrients >= 16 && preview.density < 82;
+      if (kind === "sprout") return preview.nutrients >= 14 && preview.density < 84;
+      if (kind === "mushroom") return preview.density < 84;
+      if (kind === "snail") return ecosystem.plants >= 4 && ecosystem.creatures <= ecosystem.plants + 1 && preview.food >= 26 && preview.density < 76;
+      if (kind === "glowbug" || kind === "butterfly") return ecosystem.plants >= 4 && preview.food >= 34 && preview.oxygen >= 42 && preview.density < 72;
+      if (kind === "mite") return counts.mite < 1 && ecosystem.plants >= 7 && preview.food >= 42 && preview.density < 68;
+      return true;
+    }
+
+    function pickAutopilotAction() {
+      const ecosystem = summarizeEcosystem();
+      const { counts, plants, creatures } = ecosystem;
+      const tryAction = (...kinds) => kinds.find((kind) => autopilotCanPlace(kind, ecosystem)) || null;
+      const pickBest = (kinds) => {
+        const ranked = kinds
+          .map((kind) => ({ kind, score: scoreAutopilotAction(kind, ecosystem) }))
+          .filter((entry) => Number.isFinite(entry.score))
+          .sort((a, b) => b.score - a.score);
+        return ranked[0]?.score > 30 ? ranked[0].kind : null;
+      };
+
+      if (state.energy < 3) return null;
+      if (state.density > 82) return null;
+
+      if (state.food < 18) return pickBest(["sprout", "moss", "fern"]);
+      if (state.oxygen < 28) return pickBest(["fern", "bamboo", "moss"]);
+      if (state.humidity < 24) return pickBest(["mist", "earthworm"]);
+      if (state.nutrients < 18) return state.waste > 22 ? pickBest(["mushroom", "earthworm", "compost"]) : pickBest(["compost", "moss"]);
+      if (state.waste > 74) return pickBest(["earthworm", "mushroom", "snail"]);
+      if (state.density > 70) return null;
+
+      if (state.humidity < 34) return pickBest(["mist", "earthworm"]);
+      if (state.humidity > 82) return pickBest(["moss"]);
+      if (state.oxygen < 40) return pickBest(["fern", "bamboo", "moss"]);
+      if (state.nutrients < 28) return state.waste > 30 ? pickBest(["mushroom", "earthworm", "compost"]) : pickBest(["compost", "moss"]);
+      if (state.food < 30 && creatures > 0) return pickBest(["sprout", "moss", "fern"]);
+      if (state.waste > 58) return pickBest(["mushroom", "earthworm", "snail"]);
+
+      if (plants < 3) return pickBest(["moss", "fern", "sprout"]);
+      if (plants < 5) return pickBest(["sprout", "fern", "moss", "mushroom"]);
+      if (counts.mushroom < 2 && state.waste > 26) return pickBest(["mushroom"]);
+      if (counts.earthworm < 1 && state.waste > 48 && state.density < 52 && state.humidity < 76) return pickBest(["earthworm"]);
+      if (creatures === 0 && state.food > 46 && state.oxygen > 50) return pickBest(["butterfly", "glowbug"]);
+      if (counts.butterfly < 2 && plants >= 5 && state.food > 52 && state.oxygen > 50 && state.density < 56) return pickBest(["butterfly", "glowbug"]);
+      if (counts.snail < 1 && state.waste > 34 && state.food > 44 && state.density < 54) return pickBest(["snail", "mushroom"]);
+      if (state.food > 66 && state.waste < 28 && counts.glowbug < 2 && plants >= 6 && state.density < 54) return pickBest(["glowbug", "butterfly"]);
+      if (state.stability > 84 && state.energy > 18 && state.density < 58) {
+        return pickBest(["fern", "sprout", "moss", "mushroom", "bamboo", "butterfly"]);
+      }
+      return pickBest(["moss", "fern", "sprout", "mushroom"]);
     }
 
     function runAutopilot() {
-      if (!state.autopilot.enabled || !state.running || state.gameOver) return;
+      if (!state.autopilot.enabled || !state.running || state.paused || state.gameOver) return;
 
       const now = performance.now();
       if (now < state.autopilot.nextAt) return;
 
+      const ecosystem = summarizeEcosystem();
       const kind = pickAutopilotAction();
+      const [focus, thought] = autopilotThought(kind, ecosystem);
+      state.autopilot.focus = focus;
+      state.autopilot.thought = thought;
       const action = actions.find((entry) => entry.id === kind);
       if (!action || state.energy < action.cost) {
-        state.autopilot.nextAt = now + 1200;
+        state.autopilot.nextAt = now + (state.stability < 55 ? 700 : 1000);
         return;
       }
 
       placeByAi(kind);
-      state.autopilot.nextAt = now + rand(1600, 2600);
+      const crisis =
+        state.food < 24 ||
+        state.oxygen < 34 ||
+        state.humidity < 28 ||
+        state.humidity > 86 ||
+        state.nutrients < 20 ||
+        state.waste > 68;
+      const thriving = state.stability > 86 && state.density < 52 && state.food > 46 && state.oxygen > 52;
+      state.autopilot.nextAt = now + (crisis ? rand(700, 1200) : thriving ? rand(1900, 3000) : rand(1300, 2200));
     }
 
     function seedWorld() {
@@ -1457,7 +1903,7 @@
         const item = createItem(kind, p);
         if (item.type === "plant") {
           item.bornAt = gameDay() - rand(0, 4);
-          item.nextReproAt = item.bornAt + 5 + rand(0.6, 1.6);
+          item.nextReproAt = item.bornAt + 10 + rand(0.6, 1.6);
         }
         state.items.push(item);
       });
@@ -1552,7 +1998,7 @@
 
       if (item.type === "plant") {
         const maturity = plantMaturity(item);
-        const targetSize = item.maxSize * (0.56 + maturity * 0.52);
+        const targetSize = item.maxSize * (0.52 + maturity * 0.84);
         item.size += (targetSize - item.size) * 0.0025 * dt;
       }
 
@@ -1561,22 +2007,25 @@
         item.wz += item.vy * dt * 0.0026;
         item.vx += rand(-0.006, 0.006) * dt;
         item.vy += rand(-0.005, 0.005) * dt;
-        const speedCap = item.kind === "glowbug" ? 0.52 : 0.23;
+        const speedCap = item.kind === "glowbug" ? 1.04 : item.kind === "butterfly" ? 0.38 : 0.23;
         item.vx = clamp(item.vx, -speedCap, speedCap);
         item.vy = clamp(item.vy, -speedCap, speedCap);
-        if (item.kind !== "glowbug" && Math.abs(item.vx) > 0.035) {
+        if (item.kind !== "glowbug" && item.kind !== "butterfly" && Math.abs(item.vx) > 0.035) {
           item.facing = item.vx > 0 ? 1 : -1;
         }
 
-        if (item.kind === "glowbug") {
+        if (item.kind === "glowbug" || item.kind === "butterfly") {
           const dome = domeMetrics();
-          const maxLift = (dome.floorY - dome.topY) / state.camera.zoom - 28;
+          const maxLift = (dome.floorY - dome.topY) / state.camera.zoom - (item.kind === "butterfly" ? 38 : 28);
           if (Math.abs(item.lift - item.liftTarget) < 5 || Math.random() < 0.002 * dt) {
-            item.liftTarget = rand(42, Math.max(54, maxLift * 0.72));
+            const minLift = item.kind === "butterfly" ? 24 : 42;
+            const targetCap = item.kind === "butterfly" ? Math.max(42, maxLift * 0.52) : Math.max(54, maxLift * 0.72);
+            item.liftTarget = rand(minLift, targetCap);
           }
-          item.lift += (item.liftTarget - item.lift) * 0.006 * dt;
-          item.lift += Math.sin(item.phase * 1.7) * 0.035 * dt;
-          item.lift = clamp(item.lift, 26, maxLift);
+          item.lift += (item.liftTarget - item.lift) * (item.kind === "butterfly" ? 0.0085 : 0.012) * dt;
+          item.lift += Math.sin(item.phase * (item.kind === "butterfly" ? 2.4 : 2.2)) * (item.kind === "butterfly" ? 0.055 : 0.07) * dt;
+          item.lift = clamp(item.lift, item.kind === "butterfly" ? 16 : 26, maxLift);
+          if (Math.abs(item.vx) > 0.01) item.facing = item.vx > 0 ? 1 : -1;
         }
 
         if (clampWorld(item)) {
@@ -1586,28 +2035,19 @@
       }
       updateScreenPosition(item);
 
-      const humidityStress = Math.abs(state.humidity - 62) * 0.004;
-      const oxygenStress = state.oxygen < 28 ? 0.12 : 0;
-      const wasteStress = state.waste > 75 ? 0.08 : 0;
-      const foodStress = item.type === "creature" && state.food < 20 ? 0.14 : 0;
-      item.health -= (humidityStress + oxygenStress + wasteStress + foodStress) * dt * 0.015;
-
       if (item.kind === "mushroom" && state.waste > 20) {
         item.health += 0.012 * dt;
       }
-      if (item.kind === "fern" && state.nutrients < 18) {
-        item.health -= 0.05 * dt;
-      }
-      item.health = clamp(item.health, 18, 112);
+      item.health = clamp(item.health, 78, 112);
     }
 
     function plantMaturity(item) {
-      return (plantStage(item) - 1) / 4;
+      return (plantStage(item) - 1) / 9;
     }
 
     function plantStage(item) {
       if (item.type !== "plant") return 0;
-      return clamp(Math.floor(gameDay() - item.bornAt) + 1, 1, 5);
+      return clamp(Math.floor(gameDay() - item.bornAt) + 1, 1, 10);
     }
 
     function plantPower(kind) {
@@ -1618,22 +2058,23 @@
     }
 
     function simulate(dt) {
-      if (!state.running || state.gameOver) return;
+      if (!state.running || state.paused || state.gameOver) return;
       const rawDt = dt;
       dt *= state.simSpeed;
 
-      const hoursAdvanced = dt * 0.0011;
+      const hoursAdvanced = dt * 0.00165;
       state.time += hoursAdvanced;
       if (state.time >= 24) {
         state.time -= 24;
         state.day += 1;
-        state.energy = clamp(state.energy + 16, 0, 60);
+        state.energy += 16;
       }
-      state.energy = clamp(state.energy + dt * 0.0024, 0, 60);
+      const isDaylight = state.time >= 6 && state.time < 18;
+      state.energy += dt * 0.0048 * (isDaylight ? 2 : 1);
 
       const counts = countKinds();
       const plants = counts.moss + counts.fern + counts.sprout + counts.mushroom + counts.bamboo;
-      const creatures = counts.mite + counts.glowbug + counts.snail + counts.earthworm;
+      const creatures = counts.mite + counts.glowbug + counts.snail + counts.earthworm + counts.butterfly;
       const mossPower = plantPower("moss");
       const fernPower = plantPower("fern");
       const sproutPower = plantPower("sprout");
@@ -1641,16 +2082,17 @@
       const bambooPower = plantPower("bamboo");
 
       const plantGrowth = (mossPower * 0.009 + fernPower * 0.014 + sproutPower * 0.012 + bambooPower * 0.003) * dt;
-      const creatureHunger = (counts.mite * 0.014 + counts.glowbug * 0.011 + counts.snail * 0.012 + counts.earthworm * 0.002) * dt;
-      const decay = state.items.filter((item) => item.health < 22).length * 0.009 * dt;
+      const creatureHunger = (counts.mite * 0.014 + counts.glowbug * 0.011 + counts.snail * 0.012 + counts.earthworm * 0.002 + counts.butterfly * 0.009) * dt;
+      const decay = 0;
       const nutrientDraw = (mossPower * 0.0026 + fernPower * 0.0062 + sproutPower * 0.0034 + mushroomPower * 0.0017 + bambooPower * 0.0042) * dt;
       const storedFoodSpoilage = (Math.max(0, state.food - 72) * 0.00004 + Math.max(0, state.density - 58) * 0.000025) * dt;
 
       state.oxygen += fernPower * 0.007 * dt + bambooPower * 0.010 * dt + mossPower * 0.003 * dt - creatures * 0.006 * dt;
       const baseHumidityDrop = 0.0026 * dt;
-      state.humidity += fernPower * 0.002 * dt + bambooPower * 0.001 * dt + counts.earthworm * 0.0042 * dt - mossPower * 0.0048 * dt - creatures * 0.0018 * dt - baseHumidityDrop;
-      state.nutrients += mushroomPower * 0.0065 * dt + counts.earthworm * 0.0075 * dt + state.waste * 0.00055 * dt - nutrientDraw;
-      state.food += plantGrowth * 1.08 + counts.glowbug * 0.002 * dt - creatureHunger * 1.65 - storedFoodSpoilage;
+      const excessHumidityBleed = Math.max(0, state.humidity - 88) * 0.0014 * dt;
+      state.humidity += fernPower * 0.002 * dt + bambooPower * 0.001 * dt + counts.earthworm * 0.0042 * dt + counts.snail * 0.91 * dt - mossPower * 0.0048 * dt - creatures * 0.0018 * dt - baseHumidityDrop - excessHumidityBleed;
+      state.nutrients += mushroomPower * 0.0065 * dt + counts.earthworm * 0.0075 * dt + counts.glowbug * 0.91 * dt + state.waste * 0.00055 * dt - nutrientDraw;
+      state.food += plantGrowth * 1.08 + counts.glowbug * 0.002 * dt + counts.butterfly * 0.008 * dt - creatureHunger * 1.65 - storedFoodSpoilage;
       state.waste += creatures * 0.0065 * dt + decay - mushroomPower * 0.017 * dt - counts.snail * 0.004 * dt - counts.earthworm * 0.018 * dt;
       const surplusFoodPressure = state.food >= 99.5 ? 1 : 0;
       const surplusFoodDecay = state.food < 92 ? 0.00025 * dt : 0;
@@ -1665,9 +2107,10 @@
         state.saturatedHumidityDensity = clamp(state.saturatedHumidityDensity - rawDt * 0.00012, 0, 16);
       }
       state.densityRelief = clamp(state.densityRelief + (25 / 24) * hoursAdvanced, 0, 85);
-      const snailRelief = counts.snail * 4.2;
+      const snailRelief = counts.snail * 5.8;
+      const fungusRelief = mushroomPower * 2.1;
       const rawDensity = (mossPower + fernPower + sproutPower + mushroomPower) * 3.1 + bambooPower * 6.2 + creatures * 5.4 + counts.earthworm * 4.8 + state.surplusFoodDensity + state.saturatedHumidityDensity;
-      state.density = clamp(rawDensity - snailRelief - state.densityRelief, 0, 100);
+      state.density = clamp(rawDensity - snailRelief - fungusRelief - state.densityRelief, 0, 100);
 
       state.humidity = clamp(state.humidity, 0, 100);
       state.oxygen = clamp(state.oxygen, 0, 100);
@@ -1688,7 +2131,7 @@
       return state.items.reduce((acc, item) => {
         acc[item.kind] = (acc[item.kind] || 0) + 1;
         return acc;
-      }, { moss: 0, fern: 0, sprout: 0, mushroom: 0, bamboo: 0, mite: 0, glowbug: 0, snail: 0, earthworm: 0 });
+      }, { moss: 0, fern: 0, sprout: 0, mushroom: 0, bamboo: 0, mite: 0, glowbug: 0, snail: 0, earthworm: 0, butterfly: 0 });
     }
 
     function cullAndReproduce(counts, dt) {
@@ -1711,7 +2154,7 @@
     }
 
     function reproduceMaturePlants(now) {
-      const maturePlants = state.items.filter((item) => item.type === "plant" && plantStage(item) >= 5);
+      const maturePlants = state.items.filter((item) => item.type === "plant" && plantStage(item) >= 10);
       maturePlants.forEach((plant) => {
         if (now < plant.nextReproAt || state.items.length >= 34 || state.density >= 92) return;
         if ((plant.kind === "fern" || plant.kind === "bamboo" || plant.kind === "sprout") && state.nutrients < 20) {
@@ -1727,13 +2170,13 @@
         }
         const reproCost = plant.kind === "mushroom" ? 4 : plant.kind === "bamboo" ? 9 : 7;
         state.nutrients = clamp(state.nutrients - reproCost, 0, 100);
-        plant.nextReproAt = now + 5 + rand(-0.4, 0.8);
+        plant.nextReproAt = now + 6 + rand(-0.4, 1.2);
         addMessage(`${actions.find((action) => action.id === plant.kind).name} propagated after reaching maturity.`);
       });
     }
 
     function reproduceCreaturePairs(now) {
-      ["mite", "glowbug", "snail", "earthworm"].forEach((kind) => {
+      ["mite", "glowbug", "snail", "earthworm", "butterfly"].forEach((kind) => {
         const survivors = state.items.filter((item) => item.kind === kind && item.health > 35);
         if (survivors.length < 2) {
           state.creatureNursery[kind] = null;
@@ -1785,6 +2228,7 @@
     }
 
     function updateVerdict() {
+      state.gameOver = false;
       const badness =
         Math.abs(state.humidity - 62) * 0.9 +
         Math.abs(state.oxygen - 58) * 0.7 +
@@ -1811,7 +2255,7 @@
     function getCollapseReason() {
       const counts = countKinds();
       const plants = counts.moss + counts.fern + counts.sprout + counts.mushroom + counts.bamboo;
-      const creatures = counts.mite + counts.glowbug + counts.snail + counts.earthworm;
+      const creatures = counts.mite + counts.glowbug + counts.snail + counts.earthworm + counts.butterfly;
       const causes = [
         {
           score: state.food < 22 ? (22 - state.food) * 2.4 + creatures * 2 : 0,
@@ -1872,11 +2316,17 @@
 
       const hour = Math.floor(state.time);
       const phase = hour < 6 ? "night" : hour < 12 ? "morning" : hour < 18 ? "afternoon" : "dusk";
-      clockEl.textContent = `Day ${state.day} - ${phase} - energy ${Math.round(state.energy)}`;
+      clockEl.textContent = state.paused
+        ? `Day ${state.day} - paused - energy ${Math.round(state.energy)}`
+        : `Day ${state.day} - ${phase} - energy ${Math.round(state.energy)}`;
       timeDialEl.style.setProperty("--cycle-angle", `${(state.time / 24) * 360}deg`);
       aiToggleBtn.textContent = state.autopilot.enabled ? "AI: On" : "AI: Off";
       aiToggleBtn.setAttribute("aria-pressed", state.autopilot.enabled ? "true" : "false");
       aiToggleBtn.classList.toggle("active", state.autopilot.enabled);
+      pauseToggleBtn.textContent = state.paused ? ">" : "||";
+      pauseToggleBtn.setAttribute("aria-pressed", state.paused ? "true" : "false");
+      pauseToggleBtn.title = state.paused ? "Resume game" : "Pause game";
+      pauseToggleBtn.classList.toggle("active", state.paused);
       if (state.running && !state.gameOver && !state.miraLeftDocked && performance.now() >= state.miraDockAt) {
         state.miraLeftDocked = true;
       }
@@ -1905,7 +2355,7 @@
     function assistantAdvice() {
       const counts = countKinds();
       const plants = counts.moss + counts.fern + counts.sprout + counts.mushroom + counts.bamboo;
-      const creatures = counts.mite + counts.glowbug + counts.snail;
+      const creatures = counts.mite + counts.glowbug + counts.snail + counts.earthworm + counts.butterfly;
       const selected = actions.find((action) => action.id === state.selected);
 
       if (!state.running) {
@@ -1917,7 +2367,12 @@
       }
 
       if (state.autopilot.enabled) {
-        return ["autopilot", "AI Autopilot is tending the dome slowly. I will skip new life when energy or density gets risky."];
+        const focusText = state.autopilot.focus === "idle" ? "watching" : state.autopilot.focus.replace(/-/g, " ");
+        return ["autopilot", `AI Autopilot is ${focusText}. ${state.autopilot.thought}`];
+      }
+
+      if (state.paused) {
+        return ["paused", "The dome is paused. Resume when you want time, growth, and creatures to move again."];
       }
 
       if (state.energy < 4) {
@@ -2642,11 +3097,174 @@
           ctx.translate(Math.round(item.x), Math.round(item.y));
           const depth = itemDepthScale(item);
           ctx.scale(depth, depth);
-          ctx.globalAlpha = clamp(item.health / 80, 0.34, 1);
+          ctx.globalAlpha = item.type === "creature" || item.type === "decoration" ? 1 : clamp(item.health / 80, 0.72, 1);
           if (item.type === "plant") drawPlant(item);
+          else if (item.type === "decoration") drawDecoration(item);
           else drawCreature(item);
           ctx.restore();
         });
+    }
+
+    function drawDecoration(item) {
+      const s = 11 * item.size;
+      const lowSway = Math.sin(item.phase * 0.4) * 0.35;
+
+      if (item.kind === "rock" || item.kind === "rockfeature") {
+        const orbitCos = Math.cos(state.camera.angle);
+        const orbitSin = Math.sin(state.camera.angle);
+        const cameraRight = item.wx * orbitCos - item.wz * orbitSin;
+        const yaw = clamp(cameraRight * 1.7, -1, 1);
+        const yawAbs = Math.abs(yaw);
+        const facing = yaw >= 0 ? 1 : -1;
+        const leanX = yaw * s * 0.18;
+        const isFlatRock = item.kind === "rockfeature";
+        const sideWidth = s * (isFlatRock ? 0.24 + yawAbs * 0.18 : 0.18 + yawAbs * 0.16);
+        const faceInset = s * (isFlatRock ? 0.18 + yawAbs * 0.08 : 0.12 + yawAbs * 0.06);
+        const bodyDark = isFlatRock ? "#3d474f" : "#51606a";
+        const sideDark = isFlatRock ? "rgba(48, 57, 64, 0.74)" : "rgba(66, 78, 88, 0.68)";
+        const sideLight = isFlatRock ? "rgba(98, 109, 118, 0.42)" : "rgba(120, 132, 143, 0.4)";
+
+        ctx.save();
+        ctx.translate(lowSway + leanX * 0.18, isFlatRock ? -s * 0.16 : -s * 0.56);
+
+        ctx.fillStyle = "rgba(31, 24, 18, 0.22)";
+        ctx.beginPath();
+        ctx.ellipse(leanX * 0.2, isFlatRock ? s * 0.86 : s * 1.18, s * (isFlatRock ? 0.56 + yawAbs * 0.14 : 0.42 + yawAbs * 0.18), s * 0.12, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = bodyDark;
+        ctx.beginPath();
+        if (isFlatRock) {
+          ctx.moveTo(-s * 0.92, s * 0.78);
+          ctx.lineTo(-s * 0.84, s * 0.16);
+          ctx.lineTo(-s * 0.54, -s * 0.08);
+          ctx.lineTo(-s * 0.08, -s * 0.36);
+          ctx.lineTo(s * 0.48, -s * 0.26);
+          ctx.lineTo(s * 0.9, s * 0.1);
+          ctx.lineTo(s * 0.84, s * 0.58);
+          ctx.lineTo(s * 0.28, s * 0.82);
+          ctx.lineTo(-s * 0.36, s * 0.9);
+        } else {
+          ctx.moveTo(-s * 0.56, s * 1.12);
+          ctx.lineTo(-s * 0.62, s * 0.42);
+          ctx.lineTo(-s * 0.46, -s * 0.36);
+          ctx.lineTo(-s * 0.18, -s * 1.06);
+          ctx.lineTo(s * 0.08, -s * 1.34);
+          ctx.lineTo(s * 0.34, -s * 1.02);
+          ctx.lineTo(s * 0.56, -s * 0.32);
+          ctx.lineTo(s * 0.66, s * 0.56);
+          ctx.lineTo(s * 0.38, s * 1.12);
+          ctx.lineTo(-s * 0.06, s * 1.22);
+        }
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = facing > 0 ? sideDark : sideLight;
+        ctx.beginPath();
+        if (facing > 0 && !isFlatRock) {
+          ctx.moveTo(s * 0.16, -s * 1.06);
+          ctx.lineTo(s * 0.38 + sideWidth * 0.18, -s * 0.62);
+          ctx.lineTo(s * 0.56 + sideWidth, -s * 0.32);
+          ctx.lineTo(s * 0.66 + sideWidth * 0.82, s * 0.56);
+          ctx.lineTo(s * 0.38 + sideWidth * 0.46, s * 1.12);
+          ctx.lineTo(s * 0.04, s * 1.08);
+        } else if (!isFlatRock) {
+          ctx.moveTo(-s * 0.02, -s * 0.92);
+          ctx.lineTo(-s * 0.24 - sideWidth * 0.08, -s * 0.32);
+          ctx.lineTo(-s * 0.46 - sideWidth * 0.4, -s * 0.36);
+          ctx.lineTo(-s * 0.62 - sideWidth * 0.78, s * 0.42);
+          ctx.lineTo(-s * 0.56 - sideWidth * 0.54, s * 1.12);
+          ctx.lineTo(-s * 0.2, s * 1.12);
+        } else if (facing > 0) {
+          ctx.moveTo(s * 0.1, -s * 0.3);
+          ctx.lineTo(s * 0.46 + sideWidth * 0.24, -s * 0.2);
+          ctx.lineTo(s * 0.9 + sideWidth * 0.82, s * 0.1);
+          ctx.lineTo(s * 0.84 + sideWidth * 0.72, s * 0.58);
+          ctx.lineTo(s * 0.28 + sideWidth * 0.26, s * 0.82);
+          ctx.lineTo(s * 0.02, s * 0.76);
+        } else {
+          ctx.moveTo(-s * 0.08, -s * 0.36);
+          ctx.lineTo(-s * 0.54 - sideWidth * 0.24, -s * 0.08);
+          ctx.lineTo(-s * 0.84 - sideWidth * 0.82, s * 0.16);
+          ctx.lineTo(-s * 0.92 - sideWidth * 0.56, s * 0.78);
+          ctx.lineTo(-s * 0.36, s * 0.9);
+          ctx.lineTo(-s * 0.02, s * 0.76);
+        }
+        ctx.closePath();
+        ctx.fill();
+
+        const face = ctx.createLinearGradient(-s * 0.7 + leanX * 0.25, isFlatRock ? -s * 0.4 : -s * 1.3, s * 0.6 + leanX * 0.7, isFlatRock ? s * 0.9 : s * 1.1);
+        if (isFlatRock) {
+          face.addColorStop(0, "#a7b2bc");
+          face.addColorStop(0.26, "#7e8a94");
+          face.addColorStop(0.64, "#515d66");
+          face.addColorStop(1, "#323c44");
+        } else {
+          face.addColorStop(0, "#dce4ea");
+          face.addColorStop(0.28, "#adb9c3");
+          face.addColorStop(0.66, "#6d7b85");
+          face.addColorStop(1, "#47545d");
+        }
+        ctx.fillStyle = face;
+        ctx.beginPath();
+        if (isFlatRock) {
+          ctx.moveTo(-s * 0.66 + facing * faceInset * 0.1, s * 0.72);
+          ctx.lineTo(-s * 0.58 + facing * faceInset * 0.04, s * 0.18);
+          ctx.lineTo(-s * 0.3 + facing * faceInset * 0.14, -s * 0.04);
+          ctx.lineTo(s * 0.02 + facing * faceInset * 0.22, -s * 0.28);
+          ctx.lineTo(s * 0.42 - facing * faceInset * 0.18, -s * 0.2);
+          ctx.lineTo(s * 0.68 - facing * faceInset * 0.26, s * 0.08);
+          ctx.lineTo(s * 0.62 - facing * faceInset * 0.12, s * 0.46);
+          ctx.lineTo(s * 0.18 - facing * faceInset * 0.2, s * 0.68);
+          ctx.lineTo(-s * 0.26 + facing * faceInset * 0.12, s * 0.76);
+        } else {
+          ctx.moveTo(-s * 0.46 + facing * faceInset * 0.2, s * 1.04);
+          ctx.lineTo(-s * 0.4 + facing * faceInset * 0.08, s * 0.34);
+          ctx.lineTo(-s * 0.24 + facing * faceInset * 0.18, -s * 0.32);
+          ctx.lineTo(-s * 0.02 + facing * faceInset * 0.24, -s * 0.92);
+          ctx.lineTo(s * 0.16 + facing * faceInset * 0.04, -s * 1.06);
+          ctx.lineTo(s * 0.38 - facing * faceInset * 0.24, -s * 0.62);
+          ctx.lineTo(s * 0.48 - facing * faceInset * 0.16, s * 0.12);
+          ctx.lineTo(s * 0.34 - facing * faceInset * 0.26, s * 0.88);
+          ctx.lineTo(s * 0.04 - facing * faceInset * 0.12, s * 1.08);
+          ctx.lineTo(-s * 0.2 + facing * faceInset * 0.12, s * 1.12);
+        }
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = isFlatRock ? "rgba(219, 227, 234, 0.24)" : "rgba(244, 249, 252, 0.34)";
+        ctx.beginPath();
+        if (isFlatRock) {
+          ctx.moveTo(-s * 0.18 + leanX * 0.12, -s * 0.12);
+          ctx.lineTo(s * 0.12 + leanX * 0.22, -s * 0.24);
+          ctx.lineTo(s * 0.26 + leanX * 0.14, -s * 0.04);
+          ctx.lineTo(-s * 0.02 + leanX * 0.08, s * 0.08);
+        } else {
+          ctx.moveTo(-s * 0.18 + leanX * 0.18, -s * 0.84);
+          ctx.lineTo(s * 0.06 + leanX * 0.24, -s * 1.04);
+          ctx.lineTo(s * 0.16 + leanX * 0.12, -s * 0.64);
+          ctx.lineTo(-s * 0.02 + leanX * 0.08, -s * 0.44);
+        }
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = "rgba(54, 67, 76, 0.7)";
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.18 + leanX * 0.1, -s * 0.78);
+        ctx.lineTo(-s * 0.02 + leanX * 0.06, -s * 0.18);
+        ctx.lineTo(s * 0.22 - leanX * 0.08, s * 0.18);
+        ctx.moveTo(-s * 0.26 + leanX * 0.06, s * 0.22);
+        ctx.lineTo(s * 0.02, s * 0.46);
+        ctx.lineTo(s * 0.28 - leanX * 0.12, s * 0.82);
+        ctx.stroke();
+
+        ctx.fillStyle = isFlatRock ? "rgba(74, 86, 94, 0.32)" : "rgba(92, 109, 118, 0.34)";
+        ctx.beginPath();
+        ctx.ellipse(leanX * 0.12, isFlatRock ? s * 0.62 : s * 0.92, s * (isFlatRock ? 0.34 + yawAbs * 0.1 : 0.24 + yawAbs * 0.08), s * 0.1, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
     }
 
     function drawLeaf(x, y, w, h, angle, color) {
@@ -2665,39 +3283,60 @@
     function drawPlant(item) {
       const s = 9 * item.size;
       const stage = plantStage(item);
+      const maturity = plantMaturity(item);
       const sway = Math.sin(item.phase) * 2;
-      ctx.fillStyle = "#3d3528";
-      ctx.beginPath();
-      ctx.ellipse(0, s * 0.62, s * 0.72, 3, 0, 0, Math.PI * 2);
-      ctx.fill();
+      if (item.kind !== "moss" && item.kind !== "mushroom") {
+        ctx.fillStyle = "#3d3528";
+        ctx.beginPath();
+        ctx.ellipse(0, s * 0.62, s * 0.72, 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
 
       if (item.kind === "mushroom") {
-        const capWidth = s * (0.74 + stage * 0.2);
-        const capHeight = s * (0.24 + stage * 0.055);
-        const stemHeight = s * (0.72 + stage * 0.13);
+        const capWidth = s * (0.84 + maturity * 1.34);
+        const capHeight = s * (0.24 + maturity * 0.5);
+        const stemHeight = s * (0.82 + maturity * 1.62);
+        const lean = Math.sin(item.phase * 0.9) * (1.2 + maturity * 1.6);
+        ctx.fillStyle = "rgba(84, 63, 44, 0.2)";
+        ctx.beginPath();
+        ctx.ellipse(lean * 0.18, s * 0.32, capWidth * 0.26, s * 0.08, 0, 0, Math.PI * 2);
+        ctx.fill();
         ctx.fillStyle = "#e8d5ad";
         ctx.beginPath();
-        ctx.ellipse(0, -stemHeight * 0.42, s * 0.22, stemHeight * 0.52, 0, 0, Math.PI * 2);
+        ctx.ellipse(lean * 0.12, -stemHeight * 0.34, s * (0.2 + maturity * 0.05), stemHeight * 0.46, lean * 0.01, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = "#cda967";
-        ctx.fillRect(-1, -stemHeight * 0.8, 2, stemHeight * 0.75);
+        ctx.fillRect(-1 + lean * 0.1, -stemHeight * 0.72, 2.4, stemHeight * 0.74);
         ctx.fillStyle = item.color;
         ctx.beginPath();
-        ctx.ellipse(0, -stemHeight, capWidth * 0.52, capHeight, 0, Math.PI, Math.PI * 2);
-        ctx.lineTo(capWidth * 0.48, -stemHeight + capHeight * 0.12);
-        ctx.quadraticCurveTo(0, -stemHeight + capHeight * 0.6, -capWidth * 0.48, -stemHeight + capHeight * 0.12);
+        ctx.ellipse(lean, -stemHeight, capWidth * 0.52, capHeight, 0, Math.PI, Math.PI * 2);
+        ctx.lineTo(lean + capWidth * 0.48, -stemHeight + capHeight * 0.12);
+        ctx.quadraticCurveTo(lean, -stemHeight + capHeight * 0.7, lean - capWidth * 0.48, -stemHeight + capHeight * 0.12);
         ctx.closePath();
         ctx.fill();
         ctx.fillStyle = "rgba(101, 61, 45, 0.18)";
         ctx.beginPath();
-        ctx.ellipse(0, -stemHeight + capHeight * 0.1, capWidth * 0.38, capHeight * 0.35, 0, 0, Math.PI * 2);
+        ctx.ellipse(lean, -stemHeight + capHeight * 0.1, capWidth * 0.38, capHeight * 0.35, 0, 0, Math.PI * 2);
         ctx.fill();
-        if (stage >= 5) {
+        if (stage >= 4) {
+          const spots = 2 + Math.floor(stage * 0.6);
           ctx.fillStyle = "#f2d8a3";
+          for (let i = 0; i < spots; i++) {
+            const t = spots === 1 ? 0.5 : i / (spots - 1);
+            const offsetX = lean + (t - 0.5) * capWidth * 0.5 + Math.sin(item.phase * 0.7 + i) * 0.6;
+            const offsetY = -stemHeight - capHeight * (0.08 + (i % 3) * 0.08);
+            ctx.beginPath();
+            ctx.ellipse(offsetX, offsetY, 1.3 + (i % 2) * 0.7, 0.9 + (i % 3) * 0.3, 0, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        if (stage >= 8) {
+          ctx.strokeStyle = "rgba(255, 242, 214, 0.42)";
+          ctx.lineWidth = 1;
           ctx.beginPath();
-          ctx.ellipse(-capWidth * 0.18, -stemHeight - capHeight * 0.16, 1.7, 1.2, 0, 0, Math.PI * 2);
-          ctx.ellipse(capWidth * 0.13, -stemHeight - capHeight * 0.02, 1.5, 1.1, 0, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.moveTo(lean - capWidth * 0.18, -stemHeight - capHeight * 0.36);
+          ctx.quadraticCurveTo(lean, -stemHeight - capHeight * 0.5, lean + capWidth * 0.16, -stemHeight - capHeight * 0.32);
+          ctx.stroke();
         }
         return;
       }
@@ -2705,11 +3344,12 @@
       if (item.kind === "bamboo") {
         const dome = domeMetrics();
         const depth = itemDepthScale(item);
-        const availableHeight = (dome.floorY - dome.topY - 44) / Math.max(0.45, state.camera.zoom * depth);
-        const height = Math.min(s * (2.0 + stage * 1.85), availableHeight);
-        const bambooSway = Math.sin(item.phase) * 1.4;
-        const stalkWidth = clamp(s * 0.18, 3, 5);
-        const nodeGap = clamp(height / (stage + 4), 9, 15);
+        const availableHeight = (dome.floorY - dome.topY - 10) / Math.max(0.45, state.camera.zoom * depth);
+        const heightProgress = Math.pow(maturity, 1.65);
+        const height = Math.min(s * (2.2 + heightProgress * 12.8), availableHeight);
+        const bambooSway = Math.sin(item.phase * 0.8) * (1.5 + maturity * 2.1);
+        const stalkWidth = clamp(s * (0.18 + maturity * 0.06), 3, 7);
+        const nodeGap = clamp(height / (stage + 5), 8, 14);
 
         ctx.fillStyle = "#2f7044";
         ctx.fillRect(-stalkWidth * 0.5 + bambooSway, -height, stalkWidth, height + s * 0.62);
@@ -2721,61 +3361,101 @@
           ctx.fillRect(-stalkWidth * 1.05 + bambooSway, y, stalkWidth * 2.1, 2);
         }
 
-        for (let i = 0; i < stage + 2; i++) {
-          const ratio = (i + 1) / (stage + 3);
+        const branchCount = 4 + stage;
+        for (let i = 0; i < branchCount; i++) {
+          const ratio = (i + 1) / (branchCount + 1);
           const y = -height + height * ratio;
           const dir = i % 2 === 0 ? -1 : 1;
-          const leafLength = s * (0.7 + stage * 0.12) * (1 - ratio * 0.25);
-          drawLeaf(bambooSway + dir * (stalkWidth + leafLength * 0.32), y, leafLength * 0.42, 3.2, dir * 0.28, i % 3 === 0 ? "#8ecf62" : "#5fa34d");
+          const leafLength = s * (0.8 + maturity * 1.15) * (1 - ratio * 0.25);
+          const leafSway = Math.sin(item.phase * 1.1 + i * 0.8) * 2.1;
+          drawLeaf(bambooSway + leafSway + dir * (stalkWidth + leafLength * 0.32), y, leafLength * 0.42, 3.2 + maturity * 1.1, dir * (0.22 + ratio * 0.18), i % 3 === 0 ? "#8ecf62" : "#5fa34d");
         }
 
-        if (stage >= 5) {
-          drawLeaf(bambooSway - 4, -height - 2, 7, 3.2, -0.3, "#a8d86a");
-          drawLeaf(bambooSway + 4, -height - 2, 7, 3.2, 0.3, "#a8d86a");
+        if (stage >= 7) {
+          const sideHeight = height * 0.72;
+          const sideOffset = stalkWidth * 1.4;
+          ctx.fillStyle = "#387d4d";
+          ctx.fillRect(sideOffset + bambooSway, -sideHeight, stalkWidth * 0.68, sideHeight + s * 0.42);
+          drawLeaf(bambooSway - 4, -height - 2, 8.4, 3.4, -0.34, "#a8d86a");
+          drawLeaf(bambooSway + 4, -height - 2, 8.4, 3.4, 0.34, "#a8d86a");
         }
         return;
       }
 
       if (item.kind === "moss") {
-        const clumps = stage + 3;
+        const clumps = 5 + stage;
         for (let i = 0; i < clumps; i++) {
-          const x = (i - (clumps - 1) / 2) * s * 0.22 + Math.sin(item.phase + i) * 1.2;
-          const y = -s * (0.12 + (i % 2) * 0.08);
+          const x = (i - (clumps - 1) / 2) * s * (0.2 + maturity * 0.02) + Math.sin(item.phase * 1.1 + i) * (1.2 + maturity);
+          const y = s * (0.08 + (i % 2) * 0.03 - maturity * 0.04);
+          const tuftHeight = s * (0.22 + maturity * 0.26 + (i % 3) * 0.03);
           ctx.fillStyle = i % 2 ? "#7fb451" : "#5c9a49";
           ctx.beginPath();
-          ctx.ellipse(x, y, s * 0.24, s * (0.22 + stage * 0.025), 0, 0, Math.PI * 2);
+          ctx.ellipse(x, y, s * (0.22 + maturity * 0.08), tuftHeight, 0, 0, Math.PI * 2);
           ctx.fill();
+          if (stage >= 6) {
+            ctx.fillStyle = "rgba(207, 247, 165, 0.24)";
+            ctx.beginPath();
+            ctx.ellipse(x, y - tuftHeight * 0.25, s * 0.1, tuftHeight * 0.36, 0, 0, Math.PI * 2);
+            ctx.fill();
+          }
         }
         return;
       }
 
       if (item.kind === "fern") {
-        const fronds = stage <= 1 ? 3 : stage + 3;
+        const fronds = 4 + stage;
         ctx.strokeStyle = "#2f7660";
         ctx.lineWidth = 2;
         for (let i = 0; i < fronds; i++) {
           const t = fronds === 1 ? 0 : i / (fronds - 1);
           const angle = -0.88 + t * 1.76;
-          const length = s * (0.9 + stage * 0.16) * (0.86 + Math.sin(i) * 0.08);
-          const tipX = Math.sin(angle) * length + sway * 0.4;
+          const length = s * (1.1 + maturity * 2.25) * (0.84 + Math.sin(i) * 0.08);
+          const frondSway = Math.sin(item.phase * 1.15 + i * 0.55) * (0.5 + maturity * 1.3);
+          const tipX = Math.sin(angle) * length + sway * 0.4 + frondSway;
           const tipY = -Math.cos(angle) * length;
           ctx.beginPath();
           ctx.moveTo(0, s * 0.35);
           ctx.quadraticCurveTo(tipX * 0.35, tipY * 0.56, tipX, tipY);
           ctx.stroke();
-          drawLeaf(tipX * 0.48, tipY * 0.58, s * 0.18, s * 0.07, angle, "#62ad7f");
-          drawLeaf(tipX * 0.72, tipY * 0.78, s * 0.16, s * 0.06, angle, "#78bf8e");
+          const leafletCount = 2 + Math.floor(stage / 2);
+          for (let j = 0; j < leafletCount; j++) {
+            const leafT = (j + 1) / (leafletCount + 1);
+            const leafX = tipX * leafT;
+            const leafY = s * 0.35 + (tipY - s * 0.35) * leafT;
+            const leafSize = s * (0.12 + maturity * 0.12) * (1 - leafT * 0.28);
+            drawLeaf(leafX - Math.cos(angle) * 5, leafY, leafSize, leafSize * 0.38, angle - 0.9, j % 2 ? "#62ad7f" : "#78bf8e");
+            drawLeaf(leafX + Math.cos(angle) * 5, leafY, leafSize, leafSize * 0.38, angle + 0.9, j % 2 ? "#5ca575" : "#92cf90");
+          }
         }
         return;
       }
 
+      const stemHeight = s * (1.1 + maturity * 2.4);
+      const stemWidth = 3 + maturity * 1.8;
       ctx.fillStyle = "#5a913d";
-      ctx.fillRect(-1.5 + sway, -s * (0.95 + stage * 0.1), 3, s * (1.2 + stage * 0.12));
+      ctx.fillRect(-stemWidth * 0.5 + sway * 0.35, -stemHeight, stemWidth, stemHeight + s * 0.62);
       const leafColor = item.kind === "sprout" ? "#dbe982" : item.color;
-      drawLeaf(-s * 0.38 + sway, -s * 0.72, s * (0.34 + stage * 0.03), s * 0.15, -0.38, leafColor);
-      drawLeaf(s * 0.38 + sway, -s * 0.88, s * (0.34 + stage * 0.03), s * 0.15, 0.38, leafColor);
-      if (stage >= 3) drawLeaf(-s * 0.18 + sway, -s * 1.24, s * 0.28, s * 0.13, -0.12, "#b6d76a");
-      if (stage >= 5) drawLeaf(sway, -s * 1.55, s * 0.24, s * 0.16, 0, "#e2ee8a");
+      const leafPairs = 2 + Math.floor(stage / 2);
+      for (let i = 0; i < leafPairs; i++) {
+        const ratio = (i + 1) / (leafPairs + 1);
+        const y = -stemHeight + stemHeight * ratio;
+        const span = s * (0.34 + maturity * 0.7) * (1 - ratio * 0.18);
+        const leafSway = Math.sin(item.phase * 1.25 + i * 0.9) * (0.4 + maturity * 0.6);
+        drawLeaf(-span + sway + leafSway, y, span * 0.86, s * (0.14 + maturity * 0.06), -0.52 + ratio * 0.22, i % 2 ? leafColor : "#b6d76a");
+        drawLeaf(span + sway - leafSway, y - s * 0.08, span * 0.8, s * (0.13 + maturity * 0.05), 0.52 - ratio * 0.22, i % 2 ? "#c8e77e" : leafColor);
+      }
+      if (stage >= 7) drawLeaf(sway * 0.4, -stemHeight - s * 0.22, s * 0.34, s * 0.18, 0, "#e2ee8a");
+      if (item.kind === "sprout" && stage >= 8) {
+        ctx.fillStyle = "#f2d878";
+        ctx.beginPath();
+        ctx.ellipse(sway * 0.3, -stemHeight - s * 0.42, s * 0.14, s * 0.14, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#fff0ad";
+        for (let i = 0; i < 6; i++) {
+          const angle = (i / 6) * Math.PI * 2 + item.phase * 0.08;
+          drawLeaf(Math.cos(angle) * s * 0.22, -stemHeight - s * 0.42 + Math.sin(angle) * s * 0.04, s * 0.12, s * 0.055, angle, "#fff0ad");
+        }
+      }
     }
 
     function drawCreature(item) {
@@ -2818,6 +3498,45 @@
         return;
       }
 
+      if (item.kind === "butterfly") {
+        const flap = Math.sin(item.phase * 18);
+        const spread = 6.2 + Math.abs(flap) * 4.8;
+        const lowerSpread = 4.2 + Math.abs(flap) * 2.6;
+        ctx.save();
+        ctx.scale(item.facing || 1, 1);
+        ctx.strokeStyle = "rgba(60, 39, 27, 0.6)";
+        ctx.lineWidth = 1.1;
+        ctx.beginPath();
+        ctx.moveTo(0, -1 + bob);
+        ctx.lineTo(0, 9 + bob);
+        ctx.moveTo(0, -4 + bob);
+        ctx.quadraticCurveTo(-2.5, -8 + bob, -5, -9 + bob);
+        ctx.moveTo(0, -4 + bob);
+        ctx.quadraticCurveTo(2.5, -8 + bob, 5, -9 + bob);
+        ctx.stroke();
+        ctx.fillStyle = item.primaryColor || "rgba(244, 162, 97, 0.88)";
+        ctx.beginPath();
+        ctx.ellipse(-4.5, -1.5 + bob, spread, 5.6, -0.55 - flap * 0.12, 0, Math.PI * 2);
+        ctx.ellipse(4.5, -1.5 + bob, spread, 5.6, 0.55 + flap * 0.12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = item.secondaryColor || "rgba(239, 210, 96, 0.84)";
+        ctx.beginPath();
+        ctx.ellipse(-4, 5 + bob, lowerSpread, 3.9, -0.24 - flap * 0.08, 0, Math.PI * 2);
+        ctx.ellipse(4, 5 + bob, lowerSpread, 3.9, 0.24 + flap * 0.08, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#2f241a";
+        ctx.beginPath();
+        ctx.ellipse(0, 2 + bob, 1.8, 6.6, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = item.spotColor || "#fff4cb";
+        ctx.beginPath();
+        ctx.ellipse(-6.2, -2.4 + bob, 1.35, 1.1, 0, 0, Math.PI * 2);
+        ctx.ellipse(6.2, -2.4 + bob, 1.35, 1.1, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+        return;
+      }
+
       ctx.save();
       ctx.scale(item.facing || 1, 1);
       if (item.kind === "snail") {
@@ -2853,31 +3572,62 @@
       }
 
       if (item.kind === "earthworm") {
-        const wiggle = Math.sin(item.phase * 5) * 2.2;
-        ctx.strokeStyle = "#5b3029";
-        ctx.lineWidth = 7;
+        const wiggle = Math.sin(item.phase * 5.6) * 2.6;
+        const bodyGradient = ctx.createLinearGradient(-13, -6 + bob, 13, 5 + bob);
+        bodyGradient.addColorStop(0, "#de9b83");
+        bodyGradient.addColorStop(0.28, "#c97967");
+        bodyGradient.addColorStop(0.62, "#9b574b");
+        bodyGradient.addColorStop(1, "#6a3830");
+        ctx.strokeStyle = "rgba(73, 41, 35, 0.62)";
+        ctx.lineWidth = 8;
         ctx.lineCap = "round";
         ctx.beginPath();
         ctx.moveTo(-13, 1 + bob);
-        ctx.bezierCurveTo(-7, -6 + bob + wiggle, 0, 7 + bob - wiggle, 12, -1 + bob);
+        ctx.bezierCurveTo(-7, -7 + bob + wiggle, -1, 7 + bob - wiggle, 12, -1 + bob);
         ctx.stroke();
-        ctx.strokeStyle = "#c47b68";
-        ctx.lineWidth = 4;
+
+        ctx.strokeStyle = bodyGradient;
+        ctx.lineWidth = 5.4;
         ctx.beginPath();
         ctx.moveTo(-12, 1 + bob);
         ctx.bezierCurveTo(-6, -5 + bob + wiggle, 0, 6 + bob - wiggle, 11, -1 + bob);
         ctx.stroke();
-        ctx.strokeStyle = "rgba(67, 35, 29, 0.42)";
+
+        ctx.strokeStyle = "rgba(255, 218, 200, 0.35)";
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(-8, -1 + bob);
+        ctx.bezierCurveTo(-3, -5 + bob + wiggle * 0.32, 3, 3 + bob - wiggle * 0.22, 9, -2 + bob);
+        ctx.stroke();
+
+        ctx.strokeStyle = "rgba(67, 35, 29, 0.34)";
         ctx.lineWidth = 1;
-        for (let i = -7; i <= 7; i += 4) {
+        for (let i = -8; i <= 8; i += 3.5) {
+          const ringLift = Math.sin(item.phase * 4 + i * 0.45) * 0.4;
           ctx.beginPath();
-          ctx.moveTo(i, -2 + bob);
-          ctx.lineTo(i + 1, 3 + bob);
+          ctx.moveTo(i, -2.4 + bob + ringLift);
+          ctx.lineTo(i + 1.1, 3.2 + bob - ringLift);
           ctx.stroke();
         }
+
+        ctx.strokeStyle = "rgba(176, 96, 86, 0.78)";
+        ctx.lineWidth = 3.1;
+        ctx.beginPath();
+        ctx.moveTo(-1.8, -1.5 + bob);
+        ctx.bezierCurveTo(-0.8, -0.2 + bob, 0.9, 0.9 + bob, 3.2, 0.6 + bob);
+        ctx.stroke();
+
         ctx.fillStyle = "#f2b19a";
         ctx.beginPath();
-        ctx.ellipse(12, -1 + bob, 2.8, 2.2, 0, 0, Math.PI * 2);
+        ctx.ellipse(12.3, -0.8 + bob, 2.9, 2.3, 0.12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255, 224, 204, 0.55)";
+        ctx.beginPath();
+        ctx.ellipse(11.6, -1.8 + bob, 1.2, 0.65, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#5d332d";
+        ctx.beginPath();
+        ctx.ellipse(13.1, -1.1 + bob, 0.45, 0.35, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
         return;
@@ -2897,11 +3647,11 @@
         ctx.quadraticCurveTo(6 + step * 0.35, y - 1 - lift, 9 + step, y - 3 + lift);
         ctx.stroke();
       }
-      ctx.fillStyle = "#ad6744";
+      ctx.fillStyle = item.primaryColor || "#ad6744";
       ctx.beginPath();
       ctx.ellipse(0, bob, 5.8, 6.5, 0, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = "#c9875d";
+      ctx.fillStyle = item.secondaryColor || "#c9875d";
       ctx.beginPath();
       ctx.ellipse(0, -2 + bob, 3.2, 2.8, 0, 0, Math.PI * 2);
       ctx.fill();
@@ -3014,6 +3764,7 @@
         metersOpen: false,
         miraLeftDocked: false,
         miraDockAt: performance.now() + 15000,
+        paused: false,
         gameOver: false
       });
       appEl.classList.remove("mira-left-docked");
@@ -3031,7 +3782,7 @@
       const y = event.clientY - rect.top;
       const item = findItemAt(x, y);
 
-      if (item && state.running && !state.gameOver) {
+      if (item && state.running && !state.paused && !state.gameOver) {
         state.dragging = { item, wasCreature: item.type === "creature" };
         item.vx = 0;
         item.vy = 0;
@@ -3114,6 +3865,18 @@
       state.camera.zoom = 1;
     });
 
+    rotateLeftBtn.addEventListener("click", () => {
+      rotateTable(-0.22);
+    });
+
+    rotateRightBtn.addEventListener("click", () => {
+      rotateTable(0.22);
+    });
+
+    pauseToggleBtn.addEventListener("click", () => {
+      togglePause();
+    });
+
     aiToggleBtn.addEventListener("click", () => {
       state.autopilot.enabled = !state.autopilot.enabled;
       state.autopilot.nextAt = 0;
@@ -3150,6 +3913,18 @@
         selectAction(actions[index].id);
       }
       if (event.key.toLowerCase() === "a") aiToggleBtn.click();
+      if (event.key === " ") {
+        event.preventDefault();
+        togglePause();
+      }
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        rotateTable(-0.18);
+      }
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        rotateTable(0.18);
+      }
       if (event.key.toLowerCase() === "m") shopToggleBtn.click();
       if (event.key.toLowerCase() === "h") metersToggleBtn.click();
       if (event.key.toLowerCase() === "r") restart();
