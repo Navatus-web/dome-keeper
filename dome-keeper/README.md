@@ -29,4 +29,4 @@ The local server defaults to <http://127.0.0.1:4173>.
 4. Run `npm run check` and, when dependencies are installed, `npm run test`.
 5. Open a PR with screenshots or Playwright evidence for any visual/gameplay changes.
 
-The GitHub Actions workflows run static checks, browser smoke tests, and a scheduled improvement-plan job.
+The GitHub Actions workflows run static checks, browser smoke tests, and a scheduled improvement-plan job. The agent plan workflow runs every Monday, uploads the generated plan, and opens or updates a GitHub issue labeled `agent-plan` for supervised coding-agent follow-up.

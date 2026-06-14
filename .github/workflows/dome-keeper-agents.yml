@@ -5,6 +5,10 @@ on:
     - cron: "0 8 * * 1"
   workflow_dispatch:
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   plan:
     runs-on: ubuntu-latest
@@ -29,3 +33,80 @@ jobs:
         with:
           name: dome-keeper-agent-improvement-plan
           path: dome-keeper/agent-improvement-plan.md
+
+      - name: Open or update weekly agent issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { readFileSync } = require("node:fs");
+
+            const plan = readFileSync("dome-keeper/agent-improvement-plan.md", "utf8");
+            const issueTitle = "Dome Keeper weekly agent improvement plan";
+            const marker = "<!-- dome-keeper-agent-plan -->";
+            const body = [
+              marker,
+              plan,
+              "## Agent Handoff",
+              "",
+              "Pick one small task from the plan, create a branch, make the smallest coherent gameplay improvement, then open a PR.",
+              "",
+              "Required checks before review:",
+              "- `npm run check`",
+              "- `npm run test` when Playwright dependencies are available",
+              "",
+              "Guardrails:",
+              "- Keep the first screen playable.",
+              "- Preserve pointer, keyboard, and touch controls.",
+              "- Avoid remote runtime dependencies.",
+              "- Include screenshots or notes for visual/gameplay changes.",
+              ""
+            ].join("\n");
+
+            const { owner, repo } = context.repo;
+            const ensureLabel = async (name, color, description) => {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name });
+              } catch (error) {
+                if (error.status !== 404) throw error;
+                await github.rest.issues.createLabel({
+                  owner,
+                  repo,
+                  name,
+                  color,
+                  description
+                });
+              }
+            };
+
+            await ensureLabel("agent-plan", "6f9fd8", "Automated improvement plan generated for coding agents.");
+            await ensureLabel("dome-keeper", "77b255", "Work related to the Dome Keeper browser game.");
+
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner,
+              repo,
+              state: "open",
+              labels: "agent-plan",
+              per_page: 20
+            });
+
+            const existing = issues.find((issue) => issue.title === issueTitle);
+
+            if (existing) {
+              await github.rest.issues.update({
+                owner,
+                repo,
+                issue_number: existing.number,
+                body
+              });
+              core.notice(`Updated issue #${existing.number}`);
+              return;
+            }
+
+            const { data: issue } = await github.rest.issues.create({
+              owner,
+              repo,
+              title: issueTitle,
+              body,
+              labels: ["agent-plan", "dome-keeper"]
+            });
+            core.notice(`Created issue #${issue.number}`);
