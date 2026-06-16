@@ -58,8 +58,105 @@
       width: 100%;
       height: 100%;
       image-rendering: pixelated;
-      cursor: crosshair;
+      cursor: none;
       touch-action: none;
+    }
+
+    .game-cursor {
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: 8;
+      display: grid;
+      place-items: center;
+      width: 52px;
+      height: 52px;
+      border: 2px solid rgba(255, 240, 184, 0.88);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, color-mix(in srgb, var(--cursor-color, #d9a84e) 36%, transparent) 0 22%, transparent 24%),
+        rgba(34, 27, 23, 0.1);
+      box-shadow: 0 0 0 1px rgba(31, 24, 17, 0.52), 0 0 18px color-mix(in srgb, var(--cursor-color, #d9a84e) 52%, transparent);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(0.72);
+      transition: opacity 120ms ease, transform 90ms ease, border-color 120ms ease;
+    }
+
+    .game-cursor.visible {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .game-cursor::before,
+    .game-cursor::after {
+      content: "";
+      position: absolute;
+      background: rgba(255, 240, 184, 0.86);
+    }
+
+    .game-cursor::before {
+      width: 2px;
+      height: 62px;
+    }
+
+    .game-cursor::after {
+      width: 62px;
+      height: 2px;
+    }
+
+    .game-cursor-dot {
+      position: relative;
+      z-index: 1;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(34, 27, 23, 0.74);
+      border-radius: 50%;
+      background: var(--cursor-color, #d9a84e);
+      box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .game-cursor-label {
+      position: absolute;
+      left: 50%;
+      top: calc(100% + 7px);
+      min-width: 74px;
+      padding: 4px 7px;
+      border: 1px solid rgba(252, 234, 189, 0.42);
+      background: rgba(34, 27, 23, 0.86);
+      color: #f4ead6;
+      font-size: 10px;
+      font-weight: 900;
+      line-height: 1.1;
+      text-align: center;
+      text-shadow: 0 1px 0 #000;
+      transform: translateX(-50%);
+      white-space: nowrap;
+    }
+
+    .game-cursor.dragging {
+      transform: translate(-50%, -50%) scale(0.86);
+      border-color: #b5e8e3;
+    }
+
+    .game-cursor.orbiting {
+      width: 64px;
+      height: 64px;
+      border-color: #d9a84e;
+    }
+
+    .game-cursor.hovering {
+      border-color: #9ac36a;
+      transform: translate(-50%, -50%) scale(1.12);
+    }
+
+    .game-cursor.invalid {
+      border-color: var(--bad);
+      box-shadow: 0 0 0 1px rgba(31, 24, 17, 0.52), 0 0 16px rgba(202, 91, 69, 0.62);
+    }
+
+    .game-cursor.invalid .game-cursor-dot {
+      background: var(--bad);
     }
 
     .topbar {
@@ -245,7 +342,7 @@
 
     .meters {
       display: grid;
-      width: min(300px, 34vw);
+      width: min(328px, 36vw);
       gap: 8px;
       transition: transform 240ms ease, opacity 180ms ease;
       pointer-events: auto;
@@ -259,7 +356,7 @@
 
     .meter {
       display: grid;
-      grid-template-columns: 72px 1fr 36px;
+      grid-template-columns: 72px 1fr 26px 36px;
       align-items: center;
       gap: 8px;
       padding: 7px 9px;
@@ -269,6 +366,31 @@
       color: #f4ead6;
       font-size: 12px;
       text-shadow: 0 1px 0 #000;
+    }
+
+    .meter-trend {
+      display: inline-grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      border: 1px solid rgba(252, 234, 189, 0.22);
+      background: rgba(24, 20, 16, 0.42);
+      color: rgba(244, 234, 214, 0.72);
+      font-size: 12px;
+      font-style: normal;
+      line-height: 1;
+    }
+
+    .meter-trend.rising {
+      color: #86d070;
+    }
+
+    .meter-trend.falling {
+      color: #e47b63;
+    }
+
+    .meter-trend.steady {
+      color: #e1bd68;
     }
 
     .track {
@@ -333,6 +455,10 @@
       gap: 7px;
     }
 
+    .shop-group.locked {
+      display: none;
+    }
+
     .shop-group + .shop-group {
       margin-top: 6px;
       padding-top: 8px;
@@ -352,6 +478,68 @@
       transform: translate(calc(100% + 18px), -50%);
       opacity: 0;
       pointer-events: none;
+    }
+
+    .trash-zone {
+      position: absolute;
+      right: 18px;
+      bottom: 22px;
+      z-index: 6;
+      display: grid;
+      place-items: center;
+      width: 62px;
+      height: 62px;
+      border: 2px solid rgba(252, 234, 189, 0.34);
+      background: rgba(34, 27, 23, 0.72);
+      color: #f4ead6;
+      box-shadow: 0 6px 0 rgba(35, 24, 18, 0.18);
+      opacity: 0.55;
+      pointer-events: none;
+      transition: opacity 160ms ease, transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .trash-zone.ready {
+      opacity: 0.92;
+      transform: translateY(-4px);
+    }
+
+    .trash-zone.hot {
+      border-color: #f4c1aa;
+      background: rgba(120, 48, 38, 0.86);
+      color: #fff0d6;
+      transform: translateY(-8px) scale(1.08);
+    }
+
+    .trash-icon {
+      position: relative;
+      width: 30px;
+      height: 34px;
+      border: 3px solid currentColor;
+      border-top: 0;
+      border-radius: 0 0 5px 5px;
+    }
+
+    .trash-icon::before {
+      content: "";
+      position: absolute;
+      left: -5px;
+      top: -9px;
+      width: 34px;
+      height: 5px;
+      border-radius: 3px;
+      background: currentColor;
+    }
+
+    .trash-icon::after {
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: -15px;
+      width: 12px;
+      height: 5px;
+      border: 2px solid currentColor;
+      border-bottom: 0;
+      border-radius: 4px 4px 0 0;
     }
 
     .camera-controls {
@@ -380,6 +568,48 @@
     .rotate-left,
     .rotate-right {
       grid-column: span 2;
+    }
+
+    .speed-toggle {
+      grid-column: span 4;
+    }
+
+    .unlock-popup {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 9;
+      display: grid;
+      width: min(360px, calc(100vw - 28px));
+      gap: 10px;
+      padding: 16px;
+      border: 2px solid rgba(249, 240, 189, 0.9);
+      background: rgba(34, 27, 23, 0.94);
+      color: #f4ead6;
+      box-shadow: 0 10px 0 rgba(35, 24, 18, 0.28);
+      transform: translate(-50%, -50%);
+      text-align: center;
+      pointer-events: auto;
+    }
+
+    .unlock-popup.hidden {
+      display: none;
+    }
+
+    .unlock-popup strong {
+      color: #ffe2a1;
+      font-size: 18px;
+      text-shadow: 0 1px 0 #000;
+    }
+
+    .unlock-popup p {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .unlock-popup button {
+      min-height: 40px;
     }
 
     button {
@@ -760,6 +990,32 @@
       clip-path: polygon(0 100%, 22% 18%, 100% 0, 82% 100%);
     }
 
+    .icon-stick {
+      background: linear-gradient(180deg, #b4875b, #3b2518);
+    }
+
+    .icon-stick::before {
+      left: 23px;
+      top: 6px;
+      width: 7px;
+      height: 38px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #4a2d1d, #9b6640 45%, #2c1c14);
+      transform: rotate(12deg);
+      box-shadow: -10px 20px 0 -1px #5b3824;
+    }
+
+    .icon-stick::after {
+      left: 19px;
+      top: 15px;
+      width: 23px;
+      height: 17px;
+      border-top: 6px solid #6b432a;
+      border-right: 6px solid #6b432a;
+      border-radius: 50% 60% 0 0;
+      transform: rotate(-32deg);
+    }
+
     .icon-compost::before {
       left: 8px;
       right: 8px;
@@ -1079,6 +1335,10 @@
 <body>
   <main id="app">
     <canvas id="world" width="1280" height="720" aria-label="A living pixel terrarium dome"></canvas>
+    <div id="gameCursor" class="game-cursor" aria-hidden="true">
+      <span class="game-cursor-dot"></span>
+      <span id="cursorLabel" class="game-cursor-label">Place</span>
+    </div>
 
     <section class="topbar" aria-label="Terrarium status">
       <div class="brand">
@@ -1109,12 +1369,16 @@
       <button id="zoomOut" type="button" title="Zoom out">-</button>
       <button id="zoomIn" type="button" title="Zoom in">+</button>
       <button id="resetCamera" type="button" title="Reset view">o</button>
+      <button id="speedToggle" class="speed-toggle" type="button" title="Change time speed">Speed x1</button>
       <button id="rotateLeft" class="rotate-left" type="button" title="Rotate table left"><</button>
       <button id="rotateRight" class="rotate-right" type="button" title="Rotate table right">></button>
     </section>
     <div id="shopDrawer" class="shop-drawer closed">
       <button id="shopToggle" class="shop-toggle" type="button" aria-expanded="false" aria-controls="shop">Add Life</button>
       <section id="shop" class="shop" aria-label="Add life"></section>
+    </div>
+    <div id="trashZone" class="trash-zone" aria-hidden="true" title="Drag an item here to delete it">
+      <span class="trash-icon"></span>
     </div>
     <section id="log" class="log" aria-live="polite"></section>
     <aside id="assistant" class="assistant" aria-live="polite" aria-label="Assistant gardener">
@@ -1124,6 +1388,12 @@
         <p id="assistantTip">Start with moss and a fern. I will keep an eye on the dome balance.</p>
       </div>
     </aside>
+
+    <div id="unlockPopup" class="unlock-popup hidden" role="dialog" aria-live="assertive" aria-label="Feature unlocked">
+      <strong>Congratulations!</strong>
+      <p>You survived 3 days and unlocked features: Rocks. The Decorations section is now available in Add Life.</p>
+      <button id="unlockDismiss" type="button">Continue</button>
+    </div>
 
     <div id="overlay" class="overlay">
       <div class="modal">
@@ -1138,12 +1408,15 @@
     const appEl = document.querySelector("#app");
     const canvas = document.querySelector("#world");
     const ctx = canvas.getContext("2d");
+    const gameCursorEl = document.querySelector("#gameCursor");
+    const cursorLabelEl = document.querySelector("#cursorLabel");
     const metersDrawerEl = document.querySelector("#metersDrawer");
     const metersToggleBtn = document.querySelector("#metersToggle");
     const metersEl = document.querySelector("#meters");
     const shopDrawerEl = document.querySelector("#shopDrawer");
     const shopToggleBtn = document.querySelector("#shopToggle");
     const shopEl = document.querySelector("#shop");
+    const trashZoneEl = document.querySelector("#trashZone");
     const logEl = document.querySelector("#log");
     const verdictEl = document.querySelector("#verdict");
     const clockEl = document.querySelector("#clock");
@@ -1154,10 +1427,20 @@
     const zoomOutBtn = document.querySelector("#zoomOut");
     const zoomInBtn = document.querySelector("#zoomIn");
     const resetCameraBtn = document.querySelector("#resetCamera");
+    const speedToggleBtn = document.querySelector("#speedToggle");
     const rotateLeftBtn = document.querySelector("#rotateLeft");
     const rotateRightBtn = document.querySelector("#rotateRight");
     const assistantTipEl = document.querySelector("#assistantTip");
     const aiToggleBtn = document.querySelector("#aiToggle");
+    const unlockPopupEl = document.querySelector("#unlockPopup");
+    const unlockDismissBtn = document.querySelector("#unlockDismiss");
+
+    const speedLevels = [
+      { label: "x1", simSpeed: 0.1 },
+      { label: "x2", simSpeed: 0.2 },
+      { label: "x4", simSpeed: 0.4 },
+      { label: "x8", simSpeed: 0.8 }
+    ];
 
     const actions = [
       { id: "moss", name: "Moss", note: "+nutrients -humidity", type: "plant", group: "plants", cost: 2, color: "#6faa4e" },
@@ -1173,7 +1456,8 @@
       { id: "mist", name: "Mist", note: "+humidity", type: "climate", group: "utilities", cost: 3, color: "#b5e8e3" },
       { id: "compost", name: "Compost", note: "+nutrients", type: "climate", group: "utilities", cost: 2, color: "#9b7448" },
       { id: "rock", name: "Standing Rock", note: "tall decorative anchor", type: "decoration", group: "decorations", cost: 4, color: "#7f8d97" },
-      { id: "rockfeature", name: "Rock Feature", note: "flat darker stone", type: "decoration", group: "decorations", cost: 4, color: "#5e6870" }
+      { id: "rockfeature", name: "Rock Feature", note: "flat darker stone", type: "decoration", group: "decorations", cost: 4, color: "#5e6870" },
+      { id: "stick", name: "Large Stick", note: "forked natural perch", type: "decoration", group: "decorations", cost: 4, color: "#8a5734" }
     ];
 
     const meterDefs = [
@@ -1189,6 +1473,7 @@
       running: false,
       selected: "moss",
       simSpeed: 0.1,
+      speedIndex: 0,
       day: 1,
       time: 0,
       energy: 38,
@@ -1198,6 +1483,10 @@
       waste: 17,
       food: 44,
       density: 8,
+      meterPrevious: {},
+      meterTrends: {},
+      nextTrendAt: 0,
+      collapsePressureMs: 0,
       surplusFoodDensity: 0,
       saturatedHumidityMs: 0,
       saturatedHumidityDensity: 0,
@@ -1207,6 +1496,7 @@
       camera: { angle: -0.55, zoom: 1, dragStart: null },
       dragging: null,
       orbiting: null,
+      pointer: { x: 0, y: 0, active: false, hovering: null, valid: false },
       items: [],
       particles: [],
       mistClouds: [],
@@ -1221,10 +1511,14 @@
         enabled: false,
         nextAt: 0,
         thought: "I am watching the dome for the next imbalance.",
-        focus: "idle"
+        focus: "idle",
+        plan: "Watch meters, then act on the first drift.",
+        lastAction: "None yet."
       },
       shopOpen: false,
       metersOpen: false,
+      decorationsUnlocked: false,
+      unlockNoticeShown: false,
       miraLeftDocked: false,
       miraDockAt: 0,
       paused: false,
@@ -1264,10 +1558,64 @@
       shopToggleBtn.setAttribute("aria-expanded", state.shopOpen ? "true" : "false");
     }
 
+    function updateDecorationsUnlockUi() {
+      const group = shopEl.querySelector('[data-group="decorations"]');
+      if (group) {
+        group.classList.toggle("locked", !state.decorationsUnlocked);
+      }
+      unlockPopupEl.classList.toggle("hidden", !state.unlockNoticeShown);
+    }
+
+    function unlockDecorations() {
+      if (state.decorationsUnlocked) return;
+      state.decorationsUnlocked = true;
+      state.unlockNoticeShown = true;
+      addMessage("Survived 3 days: rocks are unlocked.");
+      updateDecorationsUnlockUi();
+      updateAssistant(true);
+    }
+
+    function updateSpeedUi() {
+      const level = speedLevels[state.speedIndex] || speedLevels[0];
+      state.simSpeed = level.simSpeed;
+      speedToggleBtn.textContent = `Speed ${level.label}`;
+      speedToggleBtn.title = `Game speed ${level.label}`;
+    }
+
+    function cycleSpeed() {
+      state.speedIndex = (state.speedIndex + 1) % speedLevels.length;
+      updateSpeedUi();
+      addMessage(`Game speed set to ${speedLevels[state.speedIndex].label}.`);
+    }
+
     function updateMetersDrawer() {
       metersDrawerEl.classList.toggle("closed", !state.metersOpen);
       metersToggleBtn.textContent = state.metersOpen ? "Hide Meters" : "Meters";
       metersToggleBtn.setAttribute("aria-expanded", state.metersOpen ? "true" : "false");
+    }
+
+    function pointerOverTrash(clientX, clientY) {
+      const rect = trashZoneEl.getBoundingClientRect();
+      return clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
+    }
+
+    function updateTrashZone(clientX = null, clientY = null) {
+      const ready = !!state.dragging && state.running && !state.paused && !state.gameOver;
+      const hot = ready && clientX !== null && clientY !== null && pointerOverTrash(clientX, clientY);
+      trashZoneEl.classList.toggle("ready", ready);
+      trashZoneEl.classList.toggle("hot", hot);
+      trashZoneEl.setAttribute("aria-hidden", ready ? "false" : "true");
+    }
+
+    function deleteDraggedItem() {
+      if (!state.dragging?.item) return false;
+      const item = state.dragging.item;
+      const index = state.items.findIndex((entry) => entry.id === item.id);
+      if (index < 0) return false;
+      state.items.splice(index, 1);
+      addMessage(`${actionName(item.kind)} removed from the dome.`);
+      updateAssistant(true);
+      return true;
     }
 
     function togglePause(force) {
@@ -1283,6 +1631,7 @@
         last = performance.now();
         addMessage("Terrarium resumed.");
       }
+      updateCursorFromPointer();
       updateUi();
       updateAssistant(true);
     }
@@ -1291,8 +1640,31 @@
       state.camera.angle += delta;
     }
 
+    function resetMeterTrends() {
+      state.meterPrevious = {};
+      state.meterTrends = {};
+      meterDefs.forEach(([key]) => {
+        state.meterPrevious[key] = state[key];
+        state.meterTrends[key] = "steady";
+      });
+      state.nextTrendAt = performance.now() + 850;
+    }
+
+    function updateMeterTrends(now = performance.now()) {
+      if (now < state.nextTrendAt) return;
+      meterDefs.forEach(([key]) => {
+        const previous = state.meterPrevious[key] ?? state[key];
+        const delta = state[key] - previous;
+        const threshold = key === "waste" || key === "density" ? 0.22 : 0.28;
+        state.meterTrends[key] = delta > threshold ? "rising" : delta < -threshold ? "falling" : "steady";
+        state.meterPrevious[key] = state[key];
+      });
+      state.nextTrendAt = now + 850;
+    }
+
     function autopilotThought(kind = null, ecosystem = summarizeEcosystem()) {
       const { counts, plants, creatures } = ecosystem;
+      if (state.collapsePressureMs > 0) return ["emergency", "Collapse pressure is building. I am taking direct control before placing anything extra."];
       if (state.energy < 4) return ["reserve", "Holding position. Energy is too low for a safe intervention."];
       if (state.density > 72) return ["crowded", "Pausing growth. Density is high, so I am avoiding new pressure."];
       if (state.food < 24) return ["food", kind === "sprout" ? "Food is slipping. I am planting sprouts to rebuild the cycle." : "Food is slipping. I am prioritizing edible growth first."];
@@ -1303,7 +1675,7 @@
       if (state.waste > 58) return ["waste", kind === "mushroom" || kind === "earthworm" || kind === "snail" ? "Waste is building. I am sending in recyclers before rot spreads." : "Waste is building. I am prioritizing cleanup."];
       if (creatures === 0 && plants >= 5) return ["seed-fauna", "The habitat is ready. I am introducing gentle animal life carefully."];
       if (plants < 5) return ["green-base", "The green base is still thin. I am reinforcing plants before diversifying."];
-      if (kind) return ["steady-plan", `I think ${actions.find((action) => action.id === kind)?.name || "this"} is the cleanest next move.`];
+      if (kind) return ["steady-plan", `I think ${actionName(kind)} is the cleanest next move.`];
       return ["steady-watch", "The dome is steady. I am watching for the first meter that drifts."];
     }
 
@@ -1312,6 +1684,7 @@
       document.querySelectorAll(".shop button").forEach((el) => {
         el.classList.toggle("selected", el.dataset.action === state.selected);
       });
+      updateCursorFromPointer();
       updateAssistant(true);
     }
 
@@ -1319,7 +1692,7 @@
       meterDefs.forEach(([key, label]) => {
         const row = document.createElement("div");
         row.className = "meter";
-        row.innerHTML = `<span>${label}</span><b class="track"><i id="bar-${key}"></i></b><em id="val-${key}">0</em>`;
+        row.innerHTML = `<span>${label}</span><b class="track"><i id="bar-${key}"></i></b><i class="meter-trend steady" id="trend-${key}" title="${label} steady">-</i><em id="val-${key}">0</em>`;
         metersEl.appendChild(row);
       });
 
@@ -1331,6 +1704,7 @@
       ].forEach(([groupKey, groupLabel]) => {
         const group = document.createElement("div");
         group.className = "shop-group";
+        group.dataset.group = groupKey;
         group.setAttribute("aria-label", groupLabel);
         group.innerHTML = `<h3 class="shop-heading">${groupLabel}</h3>`;
 
@@ -1360,6 +1734,7 @@
       });
 
       document.querySelector('[data-action="moss"]').classList.add("selected");
+      updateDecorationsUnlockUi();
       updateShopDrawer();
       updateMetersDrawer();
     }
@@ -1535,6 +1910,11 @@
         item.vy = rand(-0.05, 0.05);
         item.size = rand(0.92, 1.18);
         item.maxSize = rand(1.1, 1.34);
+        item.burrowDepth = 0;
+        item.burrowTimer = 0;
+        item.burrowCooldown = rand(5200, 11800);
+        item.burrowState = "above";
+        item.burrowKicked = false;
       }
       if (kind === "glowbug") {
         item.vx = rand(-0.68, 0.68);
@@ -1571,6 +1951,13 @@
         item.size = rand(4.9, 5.8);
         item.maxSize = item.size;
       }
+      if (kind === "stick") {
+        item.vx = 0;
+        item.vy = 0;
+        item.size = rand(4.15, 4.9);
+        item.maxSize = item.size;
+        item.branchLean = rand(-0.22, 0.22);
+      }
       updateScreenPosition(item);
       return item;
     }
@@ -1578,6 +1965,11 @@
     function place(kind, x, y) {
       const action = actions.find((entry) => entry.id === kind);
       if (!state.running || state.paused || state.gameOver || !action || !inDome(x, y)) return;
+      if (action.type === "decoration" && !state.decorationsUnlocked) {
+        addMessage("Rocks unlock after you survive 3 days.");
+        updateAssistant(true);
+        return;
+      }
       if (state.energy < action.cost) {
         addMessage("Not enough keeper energy. Wait for the dome to recover.");
         return;
@@ -1590,11 +1982,11 @@
       state.energy -= action.cost;
 
       if (kind === "mist") {
-        state.humidity = clamp(state.humidity + 60, 0, 100);
+        state.humidity = clamp(state.humidity + 68, 0, 100);
         state.oxygen = clamp(state.oxygen - 2, 0, 100);
         makeParticles(x, y, "#c8f2ee", 16);
         makeMistCloud(x, y);
-        addMessage("Mist rolls across the glass. Humidity surges.");
+        addMessage("Mist rolls across the glass and leaves a soft dew behind.");
         updateAssistant(true);
         return;
       }
@@ -1632,12 +2024,164 @@
       place(kind, screen.x, screen.y);
     }
 
+    function actionName(kind) {
+      return actions.find((action) => action.id === kind)?.name || "an intervention";
+    }
+
+    function selectedAction() {
+      return actions.find((action) => action.id === state.selected) || actions[0];
+    }
+
+    function cursorPlacementAllowed(action, validDome) {
+      return !!(
+        state.running &&
+        !state.paused &&
+        !state.gameOver &&
+        action &&
+        validDome &&
+        !(action.type === "decoration" && !state.decorationsUnlocked)
+      );
+    }
+
+    function updateCursorFromPointer(x = state.pointer.x, y = state.pointer.y) {
+      state.pointer.x = x;
+      state.pointer.y = y;
+      const action = selectedAction();
+      const hovered = state.running ? findItemAt(x, y) : null;
+      const validDome = inDome(x, y);
+      const canPlace = cursorPlacementAllowed(action, validDome);
+      state.pointer.hovering = hovered;
+      state.pointer.valid = canPlace;
+
+      const classes = ["game-cursor"];
+      let label = action?.name || "Place";
+      let color = action?.color || "#d9a84e";
+
+      if (state.pointer.active) classes.push("visible");
+      if (state.dragging) {
+        classes.push("dragging");
+        label = "Move";
+        color = "#b5e8e3";
+      } else if (state.orbiting?.moved) {
+        classes.push("orbiting");
+        label = "Rotate";
+        color = "#d9a84e";
+      } else if (hovered && state.running && !state.paused && !state.gameOver) {
+        classes.push("hovering");
+        label = hovered.kind === "rockfeature" ? "Rock" : actionName(hovered.kind);
+        color = hovered.color || color;
+      } else if (!canPlace) {
+        classes.push("invalid");
+        label = !validDome ? "Outside" : state.paused ? "Paused" : action?.type === "decoration" && !state.decorationsUnlocked ? "Locked" : "Wait";
+      }
+
+      gameCursorEl.className = classes.join(" ");
+      gameCursorEl.style.left = `${x}px`;
+      gameCursorEl.style.top = `${y}px`;
+      gameCursorEl.style.setProperty("--cursor-color", color);
+      cursorLabelEl.textContent = label;
+    }
+
     function summarizeEcosystem(counts = countKinds()) {
       return {
         counts,
         plants: counts.moss + counts.fern + counts.sprout + counts.mushroom + counts.bamboo,
         creatures: counts.mite + counts.glowbug + counts.snail + counts.earthworm + counts.butterfly
       };
+    }
+
+    function setAutopilotPlan(focus, thought, plan, lastAction = state.autopilot.lastAction) {
+      state.autopilot.focus = focus;
+      state.autopilot.thought = thought;
+      state.autopilot.plan = plan;
+      state.autopilot.lastAction = lastAction;
+    }
+
+    function spendAutopilotEnergy(cost) {
+      if (state.energy < cost) return false;
+      state.energy -= cost;
+      return true;
+    }
+
+    function runAutopilotIntervention(ecosystem = summarizeEcosystem()) {
+      const pressure = state.collapsePressureMs / 7200;
+      const urgent = pressure > 0.18 || state.stability < 48;
+      if (!urgent || state.energy < 3) return false;
+
+      const center = projectWorld(0, 0, 18);
+      const relieveCollapse = () => {
+        state.collapsePressureMs = Math.max(0, state.collapsePressureMs - 1400);
+      };
+
+      if (state.humidity > 86 && spendAutopilotEnergy(3)) {
+        state.humidity = clamp(state.humidity - 18, 0, 100);
+        state.oxygen = clamp(state.oxygen + 3, 0, 100);
+        makeParticles(center.x, center.y, "#d8f7f2", 18);
+        relieveCollapse();
+        addMessage("Mira vented excess moisture from the dome.");
+        setAutopilotPlan("emergency", "Humidity is too high, so I am venting before adding more life.", "Vent moisture, then rebuild with moss only if the air keeps climbing.", "Vented excess humidity.");
+        return true;
+      }
+
+      if (state.humidity < 28 && spendAutopilotEnergy(3)) {
+        state.humidity = clamp(state.humidity + 26, 0, 100);
+        makeMistCloud(center.x, center.y);
+        relieveCollapse();
+        addMessage("Mira pulsed emergency mist into the dome.");
+        setAutopilotPlan("emergency", "The dome is drying out, so I am adding moisture before plants stress.", "Stabilize humidity, then wait before adding density.", "Pulsed emergency mist.");
+        return true;
+      }
+
+      if (state.oxygen < 32 && spendAutopilotEnergy(4)) {
+        state.oxygen = clamp(state.oxygen + 16, 0, 100);
+        state.waste = clamp(state.waste + 2, 0, 100);
+        makeParticles(center.x, center.y, "#9fd3d1", 16);
+        relieveCollapse();
+        addMessage("Mira aerated the dome for a quick oxygen lift.");
+        setAutopilotPlan("emergency", "Oxygen is low, so I am aerating before placing more life.", "Buy oxygen time, then plant ferns or bamboo if nutrients allow.", "Aerated the dome.");
+        return true;
+      }
+
+      if (state.food < 20 && ecosystem.creatures > 0 && spendAutopilotEnergy(4)) {
+        state.food = clamp(state.food + 14, 0, 100);
+        state.nutrients = clamp(state.nutrients - 4, 0, 100);
+        makeParticles(center.x, center.y, "#dbe982", 16);
+        relieveCollapse();
+        addMessage("Mira released emergency feed for the creatures.");
+        setAutopilotPlan("emergency", "Food is crashing, so I am feeding creatures before adding anything hungry.", "Feed now, then plant sprouts once the dome has room.", "Released emergency feed.");
+        return true;
+      }
+
+      if (state.waste > 66 && spendAutopilotEnergy(4)) {
+        state.waste = clamp(state.waste - 16, 0, 100);
+        state.nutrients = clamp(state.nutrients + 3, 0, 100);
+        makeCompostBurst(center.x, center.y);
+        relieveCollapse();
+        addMessage("Mira cleared a pocket of waste into usable soil.");
+        setAutopilotPlan("emergency", "Waste is poisoning the dome, so I am recycling before adding more creatures.", "Clear waste, then add fungus or worms only if density allows.", "Recycled excess waste.");
+        return true;
+      }
+
+      if (state.density > 74 && spendAutopilotEnergy(4)) {
+        state.densityRelief = clamp(state.densityRelief + 12, 0, 85);
+        state.density = clamp(state.density - 10, 0, 100);
+        relieveCollapse();
+        addMessage("Mira opened space in the ecosystem and paused new growth.");
+        setAutopilotPlan("emergency", "Density is too high, so I am making room instead of placing more life.", "Hold additions until density relaxes.", "Eased ecosystem density.");
+        return true;
+      }
+
+      if (state.nutrients < 20 && spendAutopilotEnergy(3)) {
+        state.nutrients = clamp(state.nutrients + 12, 0, 100);
+        state.waste = clamp(state.waste + 2, 0, 100);
+        makeCompostBurst(center.x, center.y);
+        relieveCollapse();
+        addMessage("Mira stirred a small nutrient reserve into the soil.");
+        setAutopilotPlan("emergency", "Nutrients are thin, so I am feeding the soil before plants stall.", "Feed soil, then avoid nutrient-heavy plants for a moment.", "Added emergency nutrients.");
+        return true;
+      }
+
+      return false;
     }
 
     function previewAutopilotAction(kind, ecosystem = summarizeEcosystem()) {
@@ -1654,7 +2198,7 @@
 
       switch (kind) {
         case "mist":
-          snapshot.humidity += 60;
+          snapshot.humidity += 68;
           snapshot.oxygen -= 2;
           break;
         case "compost":
@@ -1875,26 +2419,42 @@
       if (now < state.autopilot.nextAt) return;
 
       const ecosystem = summarizeEcosystem();
+      if (runAutopilotIntervention(ecosystem)) {
+        state.autopilot.nextAt = now + (state.collapsePressureMs > 0 ? rand(420, 760) : rand(850, 1250));
+        updateAssistant(true);
+        return;
+      }
+
       const kind = pickAutopilotAction();
       const [focus, thought] = autopilotThought(kind, ecosystem);
-      state.autopilot.focus = focus;
-      state.autopilot.thought = thought;
+      const plan = kind
+        ? `Next: ${actionName(kind)}. I will place it only if energy and density still allow it.`
+        : state.density > 70
+          ? "Hold additions while density relaxes."
+          : "Watch meters and save energy for the next correction.";
+      setAutopilotPlan(focus, thought, plan);
       const action = actions.find((entry) => entry.id === kind);
       if (!action || state.energy < action.cost) {
+        state.autopilot.lastAction = state.energy < 4 ? "Saved energy." : "Waited for a safer opening.";
         state.autopilot.nextAt = now + (state.stability < 55 ? 700 : 1000);
+        updateAssistant(true);
         return;
       }
 
       placeByAi(kind);
+      state.autopilot.lastAction = `Placed ${action.name}.`;
+      state.autopilot.plan = state.stability < 58 ? "Recheck the weakest meter after this placement." : "Let the dome respond before making the next move.";
       const crisis =
         state.food < 24 ||
         state.oxygen < 34 ||
         state.humidity < 28 ||
         state.humidity > 86 ||
         state.nutrients < 20 ||
-        state.waste > 68;
+        state.waste > 68 ||
+        state.collapsePressureMs > 0;
       const thriving = state.stability > 86 && state.density < 52 && state.food > 46 && state.oxygen > 52;
-      state.autopilot.nextAt = now + (crisis ? rand(700, 1200) : thriving ? rand(1900, 3000) : rand(1300, 2200));
+      state.autopilot.nextAt = now + (crisis ? rand(520, 900) : thriving ? rand(1900, 3000) : rand(1100, 1900));
+      updateAssistant(true);
     }
 
     function seedWorld() {
@@ -1922,6 +2482,25 @@
           color,
           size: 3,
           gravity: 0,
+          glow: false
+        });
+      }
+    }
+
+    function makeBurrowDust(item) {
+      const ground = projectWorld(item.wx, item.wz, 0);
+      const soilColors = ["#4a2f1f", "#6f472b", "#9b7448", "#c09355"];
+      for (let i = 0; i < 10; i++) {
+        state.particles.push({
+          x: ground.x + rand(-6, 6) * ground.scale,
+          y: ground.y + rand(-2, 4) * ground.scale,
+          vx: rand(-0.42, 0.42),
+          vy: rand(-0.7, -0.08),
+          life: rand(18, 34),
+          maxLife: 34,
+          color: soilColors[Math.floor(rand(0, soilColors.length))],
+          size: rand(1.6, 3.4) * ground.scale,
+          gravity: 0.08,
           glow: false
         });
       }
@@ -1985,10 +2564,56 @@
           driftX: rand(-0.0009, 0.0009),
           driftZ: rand(-0.0009, 0.0009),
           radius: rand(16, 34),
-          life: rand(120, 190),
-          maxLife: 190,
+          life: rand(260, 380),
+          maxLife: 380,
           phase: rand(0, Math.PI * 2)
         });
+      }
+    }
+
+    function updateEarthwormBurrow(item, dt) {
+      if (item.kind !== "earthworm") return;
+
+      if (item.burrowState === "above") {
+        item.burrowCooldown -= dt;
+        item.burrowDepth = Math.max(0, (item.burrowDepth || 0) - 0.003 * dt);
+        if (item.burrowCooldown <= 0) {
+          item.burrowState = "burrowing";
+          item.burrowTimer = 0;
+          item.burrowKicked = false;
+          makeBurrowDust(item);
+        }
+        return;
+      }
+
+      item.burrowTimer += dt;
+      const timer = item.burrowTimer;
+      const diveDuration = 720;
+      const hiddenDuration = 720;
+      const riseDuration = 900;
+      const totalDuration = diveDuration + hiddenDuration + riseDuration;
+
+      if (!item.burrowKicked && timer > diveDuration * 0.55) {
+        item.burrowKicked = true;
+        makeBurrowDust(item);
+      }
+
+      if (timer < diveDuration) {
+        item.burrowDepth = clamp(timer / diveDuration, 0, 1);
+      } else if (timer < diveDuration + hiddenDuration) {
+        item.burrowDepth = 1;
+      } else if (timer < totalDuration) {
+        item.burrowDepth = clamp(1 - (timer - diveDuration - hiddenDuration) / riseDuration, 0, 1);
+        if (timer > diveDuration + hiddenDuration + riseDuration * 0.3 && item.burrowKicked) {
+          item.burrowKicked = false;
+          makeBurrowDust(item);
+        }
+      } else {
+        item.burrowState = "above";
+        item.burrowTimer = 0;
+        item.burrowDepth = 0;
+        item.burrowCooldown = rand(6200, 14200);
+        item.burrowKicked = false;
       }
     }
 
@@ -1998,15 +2623,22 @@
 
       if (item.type === "plant") {
         const maturity = plantMaturity(item);
-        const targetSize = item.maxSize * (0.52 + maturity * 0.84);
+        const elder = plantElderMaturity(item);
+        const targetSize = item.maxSize * (0.52 + maturity * 0.84 + elder * 0.44);
         item.size += (targetSize - item.size) * 0.0025 * dt;
       }
 
       if (item.type === "creature") {
-        item.wx += item.vx * dt * 0.0026;
-        item.wz += item.vy * dt * 0.0026;
-        item.vx += rand(-0.006, 0.006) * dt;
-        item.vy += rand(-0.005, 0.005) * dt;
+        updateEarthwormBurrow(item, dt);
+        const burrowSlowdown = item.kind === "earthworm" ? 1 - (item.burrowDepth || 0) * 0.72 : 1;
+        item.wx += item.vx * dt * 0.0026 * burrowSlowdown;
+        item.wz += item.vy * dt * 0.0026 * burrowSlowdown;
+        item.vx += rand(-0.006, 0.006) * dt * burrowSlowdown;
+        item.vy += rand(-0.005, 0.005) * dt * burrowSlowdown;
+        if (item.kind === "earthworm" && item.burrowDepth > 0.45) {
+          item.vx *= 0.985;
+          item.vy *= 0.985;
+        }
         const speedCap = item.kind === "glowbug" ? 1.04 : item.kind === "butterfly" ? 0.38 : 0.23;
         item.vx = clamp(item.vx, -speedCap, speedCap);
         item.vy = clamp(item.vy, -speedCap, speedCap);
@@ -2042,18 +2674,22 @@
     }
 
     function plantMaturity(item) {
-      return (plantStage(item) - 1) / 9;
+      return clamp((plantStage(item) - 1) / 9, 0, 1);
+    }
+
+    function plantElderMaturity(item) {
+      return clamp((plantStage(item) - 10) / 10, 0, 1);
     }
 
     function plantStage(item) {
       if (item.type !== "plant") return 0;
-      return clamp(Math.floor(gameDay() - item.bornAt) + 1, 1, 10);
+      return clamp(Math.floor(gameDay() - item.bornAt) + 1, 1, 20);
     }
 
     function plantPower(kind) {
       return state.items.reduce((total, item) => {
         if (item.kind !== kind || item.type !== "plant") return total;
-        return total + 0.82 + plantMaturity(item) * 0.36;
+        return total + 0.82 + plantMaturity(item) * 0.36 + plantElderMaturity(item) * 0.18;
       }, 0);
     }
 
@@ -2068,6 +2704,9 @@
         state.time -= 24;
         state.day += 1;
         state.energy += 16;
+        if (state.day >= 3) {
+          unlockDecorations();
+        }
       }
       const isDaylight = state.time >= 6 && state.time < 18;
       state.energy += dt * 0.0048 * (isDaylight ? 2 : 1);
@@ -2088,9 +2727,12 @@
       const storedFoodSpoilage = (Math.max(0, state.food - 72) * 0.00004 + Math.max(0, state.density - 58) * 0.000025) * dt;
 
       state.oxygen += fernPower * 0.007 * dt + bambooPower * 0.010 * dt + mossPower * 0.003 * dt - creatures * 0.006 * dt;
-      const baseHumidityDrop = 0.0026 * dt;
-      const excessHumidityBleed = Math.max(0, state.humidity - 88) * 0.0014 * dt;
-      state.humidity += fernPower * 0.002 * dt + bambooPower * 0.001 * dt + counts.earthworm * 0.0042 * dt + counts.snail * 0.91 * dt - mossPower * 0.0048 * dt - creatures * 0.0018 * dt - baseHumidityDrop - excessHumidityBleed;
+      const baseHumidityDrop = (state.humidity > 52 ? 0.00165 : 0.00072) * dt;
+      const excessHumidityBleed = Math.max(0, state.humidity - 90) * 0.0012 * dt;
+      const lowHumidityRebound = Math.max(0, 52 - state.humidity) * 0.00115 * dt;
+      const mistCloudDew = state.mistClouds.reduce((total, cloud) => total + cloud.life / cloud.maxLife, 0) * 0.0075 * dt;
+      const plantHumidityLift = (fernPower * 0.0028 + bambooPower * 0.0017 + sproutPower * 0.0008 + mushroomPower * 0.0006) * dt;
+      state.humidity += plantHumidityLift + counts.earthworm * 0.0052 * dt + counts.snail * 0.012 * dt + lowHumidityRebound + mistCloudDew - mossPower * 0.0032 * dt - creatures * 0.00115 * dt - baseHumidityDrop - excessHumidityBleed;
       state.nutrients += mushroomPower * 0.0065 * dt + counts.earthworm * 0.0075 * dt + counts.glowbug * 0.91 * dt + state.waste * 0.00055 * dt - nutrientDraw;
       state.food += plantGrowth * 1.08 + counts.glowbug * 0.002 * dt + counts.butterfly * 0.008 * dt - creatureHunger * 1.65 - storedFoodSpoilage;
       state.waste += creatures * 0.0065 * dt + decay - mushroomPower * 0.017 * dt - counts.snail * 0.004 * dt - counts.earthworm * 0.018 * dt;
@@ -2122,8 +2764,9 @@
       cullAndReproduce(counts, dt);
       updateParticles(dt);
       updateMistClouds(dt);
-      updateVerdict();
+      updateVerdict(rawDt);
       runAutopilot();
+      updateMeterTrends();
       updateUi();
     }
 
@@ -2227,22 +2870,51 @@
       state.mistClouds = state.mistClouds.filter((cloud) => cloud.life > 0);
     }
 
-    function updateVerdict() {
-      state.gameOver = false;
+    function updateVerdict(rawDt = 0) {
       const badness =
         Math.abs(state.humidity - 62) * 0.9 +
         Math.abs(state.oxygen - 58) * 0.7 +
         Math.max(0, state.waste - 48) * 1.1 +
         Math.max(0, 22 - state.food) * 1.4 +
         Math.max(0, state.density - 72) * 1.2 +
-        Math.max(0, 18 - state.nutrients) * 1.1;
+        Math.max(0, 18 - state.nutrients) * 1.1 +
+        Math.max(0, state.humidity - 84) * 7.5 +
+        Math.max(0, 30 - state.humidity) * 1.3 +
+        Math.max(0, 26 - state.oxygen) * 1.45 +
+        Math.max(0, 14 - state.food) * 2.0 +
+        Math.max(0, state.waste - 70) * 1.45 +
+        Math.max(0, state.density - 82) * 1.6 +
+        Math.max(0, 14 - state.nutrients) * 1.25;
 
       state.stability = clamp(100 - badness, 0, 100);
+      const catastrophic =
+        state.humidity <= 3 ||
+        state.humidity >= 99.5 ||
+        state.oxygen <= 8 ||
+        state.food <= 4 ||
+        state.waste >= 96 ||
+        state.density >= 96 ||
+        state.nutrients <= 3;
+      const critical = state.stability < 32 || catastrophic;
 
-      if (state.stability <= 0) {
-        verdictEl.textContent = "Critical";
-      } else if (state.stability < 32) {
-        verdictEl.textContent = "Critical";
+      if (critical) {
+        const severity = catastrophic ? 2 : state.stability <= 0 ? 1.65 : state.stability < 16 ? 1.25 : 1;
+        state.collapsePressureMs += rawDt * severity;
+      } else {
+        state.collapsePressureMs = Math.max(0, state.collapsePressureMs - rawDt * 1.45);
+      }
+
+      if (state.collapsePressureMs >= 7200) {
+        state.gameOver = true;
+        verdictEl.textContent = "Collapsed";
+        addMessage("The dome collapsed after sustained critical readings.");
+        showEnd("Dome Collapsed", getCollapseReason());
+        return;
+      }
+
+      if (critical) {
+        const secondsLeft = Math.max(1, Math.ceil((7200 - state.collapsePressureMs) / 1000));
+        verdictEl.textContent = `Critical ${secondsLeft}s`;
       } else if (state.stability < 58) {
         verdictEl.textContent = "Unsteady";
       } else if (state.stability > 82 && state.items.length > 14) {
@@ -2309,9 +2981,14 @@
         const value = Math.round(state[key]);
         const bar = document.querySelector(`#bar-${key}`);
         const val = document.querySelector(`#val-${key}`);
+        const trend = document.querySelector(`#trend-${key}`);
+        const trendState = state.meterTrends[key] || "steady";
         val.textContent = value;
         bar.style.width = `${value}%`;
         bar.style.backgroundColor = meterColor(key, value);
+        trend.textContent = trendSymbol(trendState);
+        trend.className = `meter-trend ${trendState}`;
+        trend.title = `${key} ${trendState}`;
       });
 
       const hour = Math.floor(state.time);
@@ -2320,18 +2997,26 @@
         ? `Day ${state.day} - paused - energy ${Math.round(state.energy)}`
         : `Day ${state.day} - ${phase} - energy ${Math.round(state.energy)}`;
       timeDialEl.style.setProperty("--cycle-angle", `${(state.time / 24) * 360}deg`);
-      aiToggleBtn.textContent = state.autopilot.enabled ? "AI: On" : "AI: Off";
+      aiToggleBtn.textContent = state.autopilot.enabled ? "AI: Takeover" : "AI: Off";
       aiToggleBtn.setAttribute("aria-pressed", state.autopilot.enabled ? "true" : "false");
       aiToggleBtn.classList.toggle("active", state.autopilot.enabled);
       pauseToggleBtn.textContent = state.paused ? ">" : "||";
       pauseToggleBtn.setAttribute("aria-pressed", state.paused ? "true" : "false");
       pauseToggleBtn.title = state.paused ? "Resume game" : "Pause game";
       pauseToggleBtn.classList.toggle("active", state.paused);
+      updateSpeedUi();
+      updateDecorationsUnlockUi();
       if (state.running && !state.gameOver && !state.miraLeftDocked && performance.now() >= state.miraDockAt) {
         state.miraLeftDocked = true;
       }
       appEl.classList.toggle("mira-left-docked", state.miraLeftDocked);
       updateAssistant();
+    }
+
+    function trendSymbol(trend) {
+      if (trend === "rising") return "^";
+      if (trend === "falling") return "v";
+      return "-";
     }
 
     function meterColor(key, value) {
@@ -2363,16 +3048,24 @@
       }
 
       if (state.gameOver) {
-        return ["collapse", "The readings tell the story. The dome can recover if you correct the first meter that turns gold."];
+        return ["collapse", "The readings tell the story. Restart the dome and correct the first meter that turns gold."];
       }
 
       if (state.autopilot.enabled) {
         const focusText = state.autopilot.focus === "idle" ? "watching" : state.autopilot.focus.replace(/-/g, " ");
-        return ["autopilot", `AI Autopilot is ${focusText}. ${state.autopilot.thought}`];
+        return ["autopilot", `AI Takeover: ${focusText}. ${state.autopilot.thought} Plan: ${state.autopilot.plan} Last: ${state.autopilot.lastAction}`];
       }
 
       if (state.paused) {
         return ["paused", "The dome is paused. Resume when you want time, growth, and creatures to move again."];
+      }
+
+      if (!state.decorationsUnlocked && state.day < 3) {
+        return ["rocks-locked", `Survive until day 3 to unlock rocks. You are on day ${state.day}, so focus on balance before decorating.`];
+      }
+
+      if (state.decorationsUnlocked && state.unlockNoticeShown) {
+        return ["rocks-unlocked", "Rocks are unlocked. Use Decorations as fixed visual anchors, but keep the ecosystem balanced first."];
       }
 
       if (state.energy < 4) {
@@ -2613,7 +3306,6 @@
       const dome = domeMetrics();
       const tabletop = [];
       const underside = [];
-      const legAnchors = [];
       const tableDrop = -42 * state.camera.zoom;
       const tableThick = -64 * state.camera.zoom;
 
@@ -2632,14 +3324,7 @@
       ctx.ellipse(dome.x, dome.floorY + dome.floorRy * 1.75, dome.floorRx * 1.22, dome.floorRy * 0.42, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      [0.15, 0.36, 0.64, 0.85].forEach((turn) => {
-        const angle = turn * Math.PI * 2;
-        const top = tankPoint(dome, angle, 1.02, tableThick + 4 * state.camera.zoom);
-        const foot = tankPoint(dome, angle, 1.1, tableThick - 128 * state.camera.zoom);
-        legAnchors.push({ top, foot, z: top.z });
-      });
-
-      drawTableLegs(legAnchors.filter((leg) => leg.z < 0));
+      drawTablePedestal(dome, tableThick);
 
       ctx.fillStyle = "#5a3b25";
       ctx.beginPath();
@@ -2671,8 +3356,6 @@
         ctx.stroke();
       }
 
-      drawTableLegs(legAnchors.filter((leg) => leg.z >= 0));
-
       ctx.strokeStyle = "#3e2819";
       ctx.lineWidth = 6 * state.camera.zoom;
       ctx.beginPath();
@@ -2695,25 +3378,73 @@
       ctx.restore();
     }
 
-    function drawTableLegs(legs) {
-      legs
-        .sort((a, b) => a.z - b.z)
-        .forEach((leg) => {
-          const front = clamp((leg.z + 1) * 0.5, 0.18, 1);
-          ctx.strokeStyle = `rgba(67, 42, 25, ${0.72 + front * 0.24})`;
-          ctx.lineWidth = 13 * state.camera.zoom;
-          ctx.beginPath();
-          ctx.moveTo(leg.top.x, leg.top.y);
-          ctx.lineTo(leg.foot.x, leg.foot.y);
-          ctx.stroke();
+    function drawTablePedestal(dome, tableThick) {
+      const zoom = state.camera.zoom;
+      const topY = dome.floorY - tableThick + dome.floorRy * 0.06;
+      const footY = dome.floorY + dome.floorRy * 1.72;
+      const neckY = topY + 18 * zoom;
+      const columnTopW = dome.floorRx * 0.26;
+      const columnMidW = dome.floorRx * 0.15;
+      const footW = dome.floorRx * 0.58;
+      const footH = dome.floorRy * 0.18;
+      const lean = Math.sin(state.camera.angle) * dome.floorRx * 0.025;
 
-          ctx.strokeStyle = `rgba(169, 111, 57, ${0.34 + front * 0.22})`;
-          ctx.lineWidth = 4 * state.camera.zoom;
-          ctx.beginPath();
-          ctx.moveTo(leg.top.x - 2 * state.camera.zoom, leg.top.y);
-          ctx.lineTo(leg.foot.x - 2 * state.camera.zoom, leg.foot.y);
-          ctx.stroke();
-        });
+      const columnGradient = ctx.createLinearGradient(dome.x - columnTopW, topY, dome.x + columnTopW, footY);
+      columnGradient.addColorStop(0, "#8d5f36");
+      columnGradient.addColorStop(0.45, "#5d3b24");
+      columnGradient.addColorStop(1, "#3b2619");
+
+      ctx.fillStyle = "rgba(31, 20, 14, 0.28)";
+      ctx.beginPath();
+      ctx.ellipse(dome.x + lean * 0.5, footY + footH * 0.52, footW * 1.06, footH * 0.82, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = columnGradient;
+      ctx.beginPath();
+      ctx.moveTo(dome.x - columnTopW + lean, neckY);
+      ctx.bezierCurveTo(
+        dome.x - columnMidW + lean * 0.25,
+        topY + 58 * zoom,
+        dome.x - columnMidW * 1.18 - lean * 0.12,
+        footY - 34 * zoom,
+        dome.x - footW * 0.34,
+        footY
+      );
+      ctx.lineTo(dome.x + footW * 0.34, footY);
+      ctx.bezierCurveTo(
+        dome.x + columnMidW * 1.18 - lean * 0.12,
+        footY - 34 * zoom,
+        dome.x + columnMidW + lean * 0.25,
+        topY + 58 * zoom,
+        dome.x + columnTopW + lean,
+        neckY
+      );
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = "rgba(178, 117, 59, 0.28)";
+      ctx.beginPath();
+      ctx.moveTo(dome.x - columnTopW * 0.4 + lean, neckY + 6 * zoom);
+      ctx.bezierCurveTo(dome.x - columnMidW * 0.45, topY + 78 * zoom, dome.x - columnMidW * 0.35, footY - 36 * zoom, dome.x - footW * 0.14, footY - 3 * zoom);
+      ctx.lineTo(dome.x - footW * 0.02, footY - 4 * zoom);
+      ctx.bezierCurveTo(dome.x - columnMidW * 0.05, footY - 42 * zoom, dome.x - columnMidW * 0.08, topY + 80 * zoom, dome.x - columnTopW * 0.12 + lean, neckY + 8 * zoom);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = "#7a4d2d";
+      ctx.beginPath();
+      ctx.ellipse(dome.x + lean, neckY, columnTopW * 1.08, dome.floorRy * 0.085, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#4a2f1f";
+      ctx.beginPath();
+      ctx.ellipse(dome.x, footY, footW, footH, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "rgba(194, 130, 65, 0.26)";
+      ctx.beginPath();
+      ctx.ellipse(dome.x - footW * 0.16, footY - footH * 0.18, footW * 0.44, footH * 0.32, -0.08, 0, Math.PI * 2);
+      ctx.fill();
     }
 
     function drawDome() {
@@ -3109,6 +3840,113 @@
       const s = 11 * item.size;
       const lowSway = Math.sin(item.phase * 0.4) * 0.35;
 
+      if (item.kind === "stick") {
+        const orbitCos = Math.cos(state.camera.angle);
+        const orbitSin = Math.sin(state.camera.angle);
+        const cameraRight = item.wx * orbitCos - item.wz * orbitSin;
+        const yaw = clamp(cameraRight * 1.5, -1, 1);
+        const lean = yaw * s * 0.2 + (item.branchLean || 0) * s;
+        const height = s * 2.76;
+        const trunkWidth = s * 0.16;
+        const baseY = s * 0.58;
+        const rootY = s * 0.8;
+        const crownY = -height;
+
+        ctx.save();
+        ctx.translate(lowSway, -s * 0.28);
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        ctx.fillStyle = "rgba(31, 24, 18, 0.28)";
+        ctx.beginPath();
+        ctx.ellipse(lean * 0.08, rootY + s * 0.05, s * (0.52 + Math.abs(yaw) * 0.12), s * 0.13, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        const bark = ctx.createLinearGradient(-trunkWidth, crownY, trunkWidth + lean, rootY);
+        bark.addColorStop(0, "#7b4a2d");
+        bark.addColorStop(0.42, "#4d2f20");
+        bark.addColorStop(0.76, "#8b5735");
+        bark.addColorStop(1, "#2a1b13");
+
+        ctx.strokeStyle = "#2c1c14";
+        ctx.lineWidth = trunkWidth * 1.34;
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.06, baseY);
+        ctx.bezierCurveTo(-s * 0.18, -s * 0.46, lean * 0.24, -s * 1.44, lean, crownY);
+        ctx.stroke();
+
+        ctx.strokeStyle = bark;
+        ctx.lineWidth = trunkWidth;
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.06, baseY);
+        ctx.bezierCurveTo(-s * 0.18, -s * 0.46, lean * 0.24, -s * 1.44, lean, crownY);
+        ctx.stroke();
+
+        const branches = [
+          { at: 0.28, side: -1, len: 0.98, rise: 0.52, width: 0.62 },
+          { at: 0.42, side: 1, len: 0.78, rise: 0.4, width: 0.5 },
+          { at: 0.6, side: -1, len: 0.58, rise: 0.28, width: 0.38 },
+          { at: 0.72, side: 1, len: 0.46, rise: 0.22, width: 0.3 }
+        ];
+
+        branches.forEach((branch, index) => {
+          const y = baseY + (crownY - baseY) * branch.at;
+          const x = lean * branch.at;
+          const dir = branch.side;
+          const tipX = x + dir * s * branch.len + yaw * s * 0.12;
+          const tipY = y - s * branch.rise;
+          ctx.strokeStyle = "#2c1c14";
+          ctx.lineWidth = trunkWidth * branch.width * 1.32;
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.quadraticCurveTo(x + dir * s * branch.len * 0.48, y - s * branch.rise * 0.32, tipX, tipY);
+          ctx.stroke();
+          ctx.strokeStyle = index % 2 ? "#6f4329" : "#8a5734";
+          ctx.lineWidth = trunkWidth * branch.width;
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.quadraticCurveTo(x + dir * s * branch.len * 0.48, y - s * branch.rise * 0.32, tipX, tipY);
+          ctx.stroke();
+
+          if (index < 3) {
+            ctx.fillStyle = "rgba(104, 148, 73, 0.76)";
+            ctx.beginPath();
+            ctx.ellipse(tipX - dir * s * 0.04, tipY + s * 0.04, s * 0.13, s * 0.055, dir * 0.45, 0, Math.PI * 2);
+            ctx.ellipse(tipX + dir * s * 0.08, tipY - s * 0.02, s * 0.11, s * 0.048, -dir * 0.38, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
+
+        ctx.strokeStyle = "rgba(220, 174, 105, 0.34)";
+        ctx.lineWidth = Math.max(1, trunkWidth * 0.16);
+        for (let i = 0; i < 5; i++) {
+          const t = (i + 1) / 6;
+          const y = baseY + (crownY - baseY) * t;
+          const x = lean * t + Math.sin(i * 1.7 + item.phase * 0.15) * s * 0.03;
+          ctx.beginPath();
+          ctx.moveTo(x - trunkWidth * 0.22, y + s * 0.1);
+          ctx.lineTo(x + trunkWidth * 0.08, y - s * 0.12);
+          ctx.stroke();
+        }
+
+        ctx.fillStyle = "rgba(86, 123, 66, 0.72)";
+        ctx.beginPath();
+        ctx.ellipse(-s * 0.18, baseY - s * 0.06, s * 0.22, s * 0.06, -0.08, 0, Math.PI * 2);
+        ctx.ellipse(s * 0.16, baseY - s * 0.02, s * 0.18, s * 0.05, 0.12, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#3b2518";
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.32, rootY);
+        ctx.quadraticCurveTo(-s * 0.16, baseY, -s * 0.02, baseY - s * 0.02);
+        ctx.quadraticCurveTo(s * 0.18, baseY + s * 0.02, s * 0.36, rootY - s * 0.03);
+        ctx.lineTo(s * 0.18, rootY + s * 0.04);
+        ctx.lineTo(-s * 0.2, rootY + s * 0.06);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
       if (item.kind === "rock" || item.kind === "rockfeature") {
         const orbitCos = Math.cos(state.camera.angle);
         const orbitSin = Math.sin(state.camera.angle);
@@ -3280,26 +4118,41 @@
       ctx.restore();
     }
 
+    function drawFlower(x, y, radius, petalColor, centerColor, phase = 0) {
+      ctx.save();
+      ctx.translate(x, y);
+      for (let i = 0; i < 7; i++) {
+        const angle = (i / 7) * Math.PI * 2 + phase;
+        drawLeaf(Math.cos(angle) * radius * 0.54, Math.sin(angle) * radius * 0.26, radius * 0.36, radius * 0.16, angle, petalColor);
+      }
+      ctx.fillStyle = centerColor;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, radius * 0.22, radius * 0.18, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
     function drawPlant(item) {
       const s = 9 * item.size;
       const stage = plantStage(item);
       const maturity = plantMaturity(item);
+      const elder = plantElderMaturity(item);
       const sway = Math.sin(item.phase) * 2;
       if (item.kind !== "moss" && item.kind !== "mushroom") {
         ctx.fillStyle = "#3d3528";
         ctx.beginPath();
-        ctx.ellipse(0, s * 0.62, s * 0.72, 3, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, s * 0.62, s * (0.72 + elder * 0.22), 3 + elder * 1.2, 0, 0, Math.PI * 2);
         ctx.fill();
       }
 
       if (item.kind === "mushroom") {
-        const capWidth = s * (0.84 + maturity * 1.34);
-        const capHeight = s * (0.24 + maturity * 0.5);
-        const stemHeight = s * (0.82 + maturity * 1.62);
-        const lean = Math.sin(item.phase * 0.9) * (1.2 + maturity * 1.6);
+        const capWidth = s * (0.84 + maturity * 1.34 + elder * 0.76);
+        const capHeight = s * (0.24 + maturity * 0.5 + elder * 0.18);
+        const stemHeight = s * (0.82 + maturity * 1.62 + elder * 0.78);
+        const lean = Math.sin(item.phase * 0.9) * (1.2 + maturity * 1.6 + elder * 1.2);
         ctx.fillStyle = "rgba(84, 63, 44, 0.2)";
         ctx.beginPath();
-        ctx.ellipse(lean * 0.18, s * 0.32, capWidth * 0.26, s * 0.08, 0, 0, Math.PI * 2);
+        ctx.ellipse(lean * 0.18, s * 0.32, capWidth * (0.26 + elder * 0.08), s * (0.08 + elder * 0.03), 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = "#e8d5ad";
         ctx.beginPath();
@@ -3319,15 +4172,19 @@
         ctx.ellipse(lean, -stemHeight + capHeight * 0.1, capWidth * 0.38, capHeight * 0.35, 0, 0, Math.PI * 2);
         ctx.fill();
         if (stage >= 4) {
-          const spots = 2 + Math.floor(stage * 0.6);
+          const spots = 2 + Math.floor(stage * 0.6) + Math.floor(elder * 5);
           ctx.fillStyle = "#f2d8a3";
           for (let i = 0; i < spots; i++) {
             const t = spots === 1 ? 0.5 : i / (spots - 1);
             const offsetX = lean + (t - 0.5) * capWidth * 0.5 + Math.sin(item.phase * 0.7 + i) * 0.6;
             const offsetY = -stemHeight - capHeight * (0.08 + (i % 3) * 0.08);
-            ctx.beginPath();
-            ctx.ellipse(offsetX, offsetY, 1.3 + (i % 2) * 0.7, 0.9 + (i % 3) * 0.3, 0, 0, Math.PI * 2);
-            ctx.fill();
+            if (stage >= 14 && i % 4 === 0) {
+              drawFlower(offsetX, offsetY - elder * s * 0.04, 2.4 + elder * 2.6, "#f7c4d1", "#ffe7a1", item.phase * 0.03 + i);
+            } else {
+              ctx.beginPath();
+              ctx.ellipse(offsetX, offsetY, 1.3 + (i % 2) * 0.7 + elder * 0.7, 0.9 + (i % 3) * 0.3 + elder * 0.3, 0, 0, Math.PI * 2);
+              ctx.fill();
+            }
           }
         }
         if (stage >= 8) {
@@ -3338,18 +4195,36 @@
           ctx.quadraticCurveTo(lean, -stemHeight - capHeight * 0.5, lean + capWidth * 0.16, -stemHeight - capHeight * 0.32);
           ctx.stroke();
         }
+        if (stage >= 11) {
+          const satelliteCount = 1 + Math.floor(elder * 4);
+          for (let i = 0; i < satelliteCount; i++) {
+            const dir = i % 2 === 0 ? -1 : 1;
+            const babyX = dir * s * (0.35 + i * 0.18);
+            const babyH = stemHeight * (0.22 + elder * 0.18 + (i % 2) * 0.05);
+            const babyCap = capWidth * (0.16 + elder * 0.05);
+            ctx.fillStyle = "#d8c097";
+            ctx.beginPath();
+            ctx.ellipse(babyX, -babyH * 0.35, s * 0.08, babyH * 0.36, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#cfa36b";
+            ctx.beginPath();
+            ctx.ellipse(babyX + Math.sin(item.phase + i) * 0.8, -babyH, babyCap, babyCap * 0.42, 0, Math.PI, Math.PI * 2);
+            ctx.fill();
+          }
+        }
         return;
       }
 
       if (item.kind === "bamboo") {
         const dome = domeMetrics();
         const depth = itemDepthScale(item);
-        const availableHeight = (dome.floorY - dome.topY - 10) / Math.max(0.45, state.camera.zoom * depth);
+        const availableHeight = (dome.floorY - dome.topY - 8) / Math.max(0.45, state.camera.zoom * depth);
         const heightProgress = Math.pow(maturity, 1.65);
-        const height = Math.min(s * (2.2 + heightProgress * 12.8), availableHeight);
-        const bambooSway = Math.sin(item.phase * 0.8) * (1.5 + maturity * 2.1);
-        const stalkWidth = clamp(s * (0.18 + maturity * 0.06), 3, 7);
-        const nodeGap = clamp(height / (stage + 5), 8, 14);
+        const elderReach = Math.pow(elder, 0.72);
+        const height = Math.min(s * (2.2 + heightProgress * 12.8 + elderReach * 13.5), availableHeight);
+        const bambooSway = Math.sin(item.phase * 0.8) * (1.5 + maturity * 2.1 + elder * 2.4);
+        const stalkWidth = clamp(s * (0.18 + maturity * 0.06 + elder * 0.05), 3, 9);
+        const nodeGap = clamp(height / (stage + 5), 7, 14);
 
         ctx.fillStyle = "#2f7044";
         ctx.fillRect(-stalkWidth * 0.5 + bambooSway, -height, stalkWidth, height + s * 0.62);
@@ -3361,36 +4236,52 @@
           ctx.fillRect(-stalkWidth * 1.05 + bambooSway, y, stalkWidth * 2.1, 2);
         }
 
-        const branchCount = 4 + stage;
+        const branchCount = 4 + stage + Math.floor(elder * 8);
         for (let i = 0; i < branchCount; i++) {
           const ratio = (i + 1) / (branchCount + 1);
           const y = -height + height * ratio;
           const dir = i % 2 === 0 ? -1 : 1;
-          const leafLength = s * (0.8 + maturity * 1.15) * (1 - ratio * 0.25);
-          const leafSway = Math.sin(item.phase * 1.1 + i * 0.8) * 2.1;
+          const leafLength = s * (0.8 + maturity * 1.15 + elder * 0.7) * (1 - ratio * 0.25);
+          const leafSway = Math.sin(item.phase * 1.1 + i * 0.8) * (2.1 + elder * 1.7);
           drawLeaf(bambooSway + leafSway + dir * (stalkWidth + leafLength * 0.32), y, leafLength * 0.42, 3.2 + maturity * 1.1, dir * (0.22 + ratio * 0.18), i % 3 === 0 ? "#8ecf62" : "#5fa34d");
+          if (stage >= 15 && i % 5 === 0) {
+            drawFlower(bambooSway + leafSway + dir * (stalkWidth + leafLength * 0.62), y - leafLength * 0.08, 2.2 + elder * 3.2, "#f5df8c", "#f49a64", item.phase * 0.04 + i);
+          }
         }
 
         if (stage >= 7) {
-          const sideHeight = height * 0.72;
+          const sideHeight = height * (0.72 + elder * 0.12);
           const sideOffset = stalkWidth * 1.4;
           ctx.fillStyle = "#387d4d";
           ctx.fillRect(sideOffset + bambooSway, -sideHeight, stalkWidth * 0.68, sideHeight + s * 0.42);
           drawLeaf(bambooSway - 4, -height - 2, 8.4, 3.4, -0.34, "#a8d86a");
           drawLeaf(bambooSway + 4, -height - 2, 8.4, 3.4, 0.34, "#a8d86a");
         }
+        if (stage >= 12) {
+          const culms = 1 + Math.floor(elder * 3);
+          for (let i = 0; i < culms; i++) {
+            const dir = i % 2 === 0 ? -1 : 1;
+            const offset = dir * stalkWidth * (1.9 + i * 0.5);
+            const culmHeight = height * (0.44 + elder * 0.26 - i * 0.04);
+            const culmSway = Math.sin(item.phase * 0.85 + i) * (0.8 + elder);
+            ctx.fillStyle = "#3f8a52";
+            ctx.fillRect(offset + bambooSway + culmSway, -culmHeight, stalkWidth * 0.56, culmHeight + s * 0.32);
+            drawLeaf(offset + bambooSway + culmSway + dir * s * 0.42, -culmHeight * 0.78, s * (0.54 + elder * 0.28), 3.2, dir * 0.38, "#a4d66e");
+            drawLeaf(offset + bambooSway + culmSway - dir * s * 0.34, -culmHeight * 0.52, s * (0.44 + elder * 0.18), 2.9, -dir * 0.34, "#78ba58");
+          }
+        }
         return;
       }
 
       if (item.kind === "moss") {
-        const clumps = 5 + stage;
+        const clumps = 5 + stage + Math.floor(elder * 8);
         for (let i = 0; i < clumps; i++) {
-          const x = (i - (clumps - 1) / 2) * s * (0.2 + maturity * 0.02) + Math.sin(item.phase * 1.1 + i) * (1.2 + maturity);
-          const y = s * (0.08 + (i % 2) * 0.03 - maturity * 0.04);
-          const tuftHeight = s * (0.22 + maturity * 0.26 + (i % 3) * 0.03);
+          const x = (i - (clumps - 1) / 2) * s * (0.2 + maturity * 0.02 + elder * 0.01) + Math.sin(item.phase * 1.1 + i) * (1.2 + maturity + elder);
+          const y = s * (0.08 + (i % 2) * 0.03 - maturity * 0.04 - elder * 0.03);
+          const tuftHeight = s * (0.22 + maturity * 0.26 + elder * 0.22 + (i % 3) * 0.03);
           ctx.fillStyle = i % 2 ? "#7fb451" : "#5c9a49";
           ctx.beginPath();
-          ctx.ellipse(x, y, s * (0.22 + maturity * 0.08), tuftHeight, 0, 0, Math.PI * 2);
+          ctx.ellipse(x, y, s * (0.22 + maturity * 0.08 + elder * 0.06), tuftHeight, 0, 0, Math.PI * 2);
           ctx.fill();
           if (stage >= 6) {
             ctx.fillStyle = "rgba(207, 247, 165, 0.24)";
@@ -3398,62 +4289,91 @@
             ctx.ellipse(x, y - tuftHeight * 0.25, s * 0.1, tuftHeight * 0.36, 0, 0, Math.PI * 2);
             ctx.fill();
           }
+          if (stage >= 12 && i % 3 === 0) {
+            const stemTop = y - tuftHeight * (0.56 + elder * 0.22);
+            ctx.strokeStyle = "rgba(189, 231, 144, 0.68)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(x, y - tuftHeight * 0.1);
+            ctx.quadraticCurveTo(x + Math.sin(item.phase + i) * 1.4, y - tuftHeight * 0.44, x + Math.sin(item.phase * 0.7 + i) * 2, stemTop);
+            ctx.stroke();
+            drawFlower(x + Math.sin(item.phase * 0.7 + i) * 2, stemTop, 1.9 + elder * 2.1, i % 2 ? "#f7e79b" : "#d8f0a3", "#f49f62", item.phase * 0.04 + i);
+          }
         }
         return;
       }
 
       if (item.kind === "fern") {
-        const fronds = 4 + stage;
+        const fronds = 4 + stage + Math.floor(elder * 7);
         ctx.strokeStyle = "#2f7660";
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2 + elder * 0.8;
         for (let i = 0; i < fronds; i++) {
           const t = fronds === 1 ? 0 : i / (fronds - 1);
           const angle = -0.88 + t * 1.76;
-          const length = s * (1.1 + maturity * 2.25) * (0.84 + Math.sin(i) * 0.08);
-          const frondSway = Math.sin(item.phase * 1.15 + i * 0.55) * (0.5 + maturity * 1.3);
+          const length = s * (1.1 + maturity * 2.25 + elder * 1.42) * (0.84 + Math.sin(i) * 0.08);
+          const frondSway = Math.sin(item.phase * 1.15 + i * 0.55) * (0.5 + maturity * 1.3 + elder * 1.2);
           const tipX = Math.sin(angle) * length + sway * 0.4 + frondSway;
           const tipY = -Math.cos(angle) * length;
           ctx.beginPath();
           ctx.moveTo(0, s * 0.35);
           ctx.quadraticCurveTo(tipX * 0.35, tipY * 0.56, tipX, tipY);
           ctx.stroke();
-          const leafletCount = 2 + Math.floor(stage / 2);
+          const leafletCount = 2 + Math.floor(stage / 2) + Math.floor(elder * 3);
           for (let j = 0; j < leafletCount; j++) {
             const leafT = (j + 1) / (leafletCount + 1);
             const leafX = tipX * leafT;
             const leafY = s * 0.35 + (tipY - s * 0.35) * leafT;
-            const leafSize = s * (0.12 + maturity * 0.12) * (1 - leafT * 0.28);
+            const leafSize = s * (0.12 + maturity * 0.12 + elder * 0.05) * (1 - leafT * 0.28);
             drawLeaf(leafX - Math.cos(angle) * 5, leafY, leafSize, leafSize * 0.38, angle - 0.9, j % 2 ? "#62ad7f" : "#78bf8e");
             drawLeaf(leafX + Math.cos(angle) * 5, leafY, leafSize, leafSize * 0.38, angle + 0.9, j % 2 ? "#5ca575" : "#92cf90");
           }
+          if (stage >= 13 && i % 4 === 0) {
+            drawFlower(tipX, tipY, 2.4 + elder * 3.2, i % 2 ? "#f2c5df" : "#d7e99b", "#ffe170", item.phase * 0.05 + i);
+          }
+        }
+        if (stage >= 16) {
+          ctx.fillStyle = "rgba(188, 229, 132, 0.22)";
+          ctx.beginPath();
+          ctx.ellipse(0, s * 0.3, s * (0.74 + elder * 0.34), s * (0.18 + elder * 0.06), 0, 0, Math.PI * 2);
+          ctx.fill();
         }
         return;
       }
 
-      const stemHeight = s * (1.1 + maturity * 2.4);
-      const stemWidth = 3 + maturity * 1.8;
+      const stemHeight = s * (1.1 + maturity * 2.4 + elder * 1.9);
+      const stemWidth = 3 + maturity * 1.8 + elder * 1.2;
       ctx.fillStyle = "#5a913d";
       ctx.fillRect(-stemWidth * 0.5 + sway * 0.35, -stemHeight, stemWidth, stemHeight + s * 0.62);
       const leafColor = item.kind === "sprout" ? "#dbe982" : item.color;
-      const leafPairs = 2 + Math.floor(stage / 2);
+      const leafPairs = 2 + Math.floor(stage / 2) + Math.floor(elder * 4);
       for (let i = 0; i < leafPairs; i++) {
         const ratio = (i + 1) / (leafPairs + 1);
         const y = -stemHeight + stemHeight * ratio;
-        const span = s * (0.34 + maturity * 0.7) * (1 - ratio * 0.18);
-        const leafSway = Math.sin(item.phase * 1.25 + i * 0.9) * (0.4 + maturity * 0.6);
-        drawLeaf(-span + sway + leafSway, y, span * 0.86, s * (0.14 + maturity * 0.06), -0.52 + ratio * 0.22, i % 2 ? leafColor : "#b6d76a");
-        drawLeaf(span + sway - leafSway, y - s * 0.08, span * 0.8, s * (0.13 + maturity * 0.05), 0.52 - ratio * 0.22, i % 2 ? "#c8e77e" : leafColor);
+        const span = s * (0.34 + maturity * 0.7 + elder * 0.42) * (1 - ratio * 0.18);
+        const leafSway = Math.sin(item.phase * 1.25 + i * 0.9) * (0.4 + maturity * 0.6 + elder * 0.9);
+        drawLeaf(-span + sway + leafSway, y, span * 0.86, s * (0.14 + maturity * 0.06 + elder * 0.035), -0.52 + ratio * 0.22, i % 2 ? leafColor : "#b6d76a");
+        drawLeaf(span + sway - leafSway, y - s * 0.08, span * 0.8, s * (0.13 + maturity * 0.05 + elder * 0.03), 0.52 - ratio * 0.22, i % 2 ? "#c8e77e" : leafColor);
+        if (stage >= 12 && i % 3 === 1) {
+          drawFlower((i % 2 ? -span : span) + sway, y - s * 0.14, 2.2 + elder * 3.1, i % 2 ? "#f9d6ef" : "#fff0a6", "#f3a65c", item.phase * 0.05 + i);
+        }
       }
-      if (stage >= 7) drawLeaf(sway * 0.4, -stemHeight - s * 0.22, s * 0.34, s * 0.18, 0, "#e2ee8a");
+      if (stage >= 7) drawLeaf(sway * 0.4, -stemHeight - s * 0.22, s * (0.34 + elder * 0.18), s * (0.18 + elder * 0.06), 0, "#e2ee8a");
       if (item.kind === "sprout" && stage >= 8) {
         ctx.fillStyle = "#f2d878";
         ctx.beginPath();
-        ctx.ellipse(sway * 0.3, -stemHeight - s * 0.42, s * 0.14, s * 0.14, 0, 0, Math.PI * 2);
+        ctx.ellipse(sway * 0.3, -stemHeight - s * 0.42, s * (0.14 + elder * 0.1), s * (0.14 + elder * 0.08), 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = "#fff0ad";
-        for (let i = 0; i < 6; i++) {
-          const angle = (i / 6) * Math.PI * 2 + item.phase * 0.08;
-          drawLeaf(Math.cos(angle) * s * 0.22, -stemHeight - s * 0.42 + Math.sin(angle) * s * 0.04, s * 0.12, s * 0.055, angle, "#fff0ad");
+        const petals = 6 + Math.floor(elder * 8);
+        for (let i = 0; i < petals; i++) {
+          const angle = (i / petals) * Math.PI * 2 + item.phase * 0.08;
+          drawLeaf(Math.cos(angle) * s * (0.22 + elder * 0.18), -stemHeight - s * 0.42 + Math.sin(angle) * s * 0.04, s * (0.12 + elder * 0.09), s * (0.055 + elder * 0.035), angle, i % 2 ? "#fff0ad" : "#ffd0df");
+        }
+        if (stage >= 16) {
+          for (let i = 0; i < 3; i++) {
+            const side = i - 1;
+            drawFlower(sway * 0.3 + side * s * (0.24 + elder * 0.12), -stemHeight - s * (0.2 + i * 0.09), 2.8 + elder * 3.4, i % 2 ? "#f9bfd8" : "#fff3b8", "#f29a4d", item.phase * 0.04 + i);
+          }
         }
       }
     }
@@ -3572,7 +4492,35 @@
       }
 
       if (item.kind === "earthworm") {
-        const wiggle = Math.sin(item.phase * 5.6) * 2.6;
+        const burrow = item.burrowDepth || 0;
+        const groundY = 5 + bob * 0.18;
+        const holePulse = 1 + Math.sin(item.phase * 3.2) * 0.05;
+        ctx.fillStyle = "rgba(33, 24, 17, 0.42)";
+        ctx.beginPath();
+        ctx.ellipse(0, groundY + 2, 14 * holePulse, 4.6, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "rgba(126, 83, 45, 0.44)";
+        ctx.beginPath();
+        ctx.ellipse(-7, groundY + 1.4, 7.5, 2.4, -0.12, 0, Math.PI * 2);
+        ctx.ellipse(8, groundY + 1.8, 6.6, 2.2, 0.18, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (burrow >= 0.92) {
+          ctx.restore();
+          return;
+        }
+
+        const wormDrop = burrow * 18;
+        const wormAlpha = clamp(1 - Math.max(0, burrow - 0.48) * 1.55, 0.18, 1);
+        const wormSquash = 1 - burrow * 0.2;
+        const wiggle = Math.sin(item.phase * 5.6) * (2.6 - burrow * 1.1);
+
+        ctx.save();
+        ctx.translate(0, wormDrop);
+        ctx.scale(1 - burrow * 0.28, wormSquash);
+        ctx.globalAlpha *= wormAlpha;
+
         const bodyGradient = ctx.createLinearGradient(-13, -6 + bob, 13, 5 + bob);
         bodyGradient.addColorStop(0, "#de9b83");
         bodyGradient.addColorStop(0.28, "#c97967");
@@ -3629,6 +4577,21 @@
         ctx.beginPath();
         ctx.ellipse(13.1, -1.1 + bob, 0.45, 0.35, 0, 0, Math.PI * 2);
         ctx.fill();
+
+        ctx.restore();
+
+        if (burrow > 0.08) {
+          ctx.fillStyle = `rgba(74, 47, 31, ${0.24 + burrow * 0.42})`;
+          ctx.beginPath();
+          ctx.ellipse(0, groundY + 1.5, 15, 4.2, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = `rgba(192, 147, 85, ${0.14 + burrow * 0.2})`;
+          ctx.beginPath();
+          ctx.ellipse(-5, groundY - 0.5, 5.5, 1.5, -0.15, 0, Math.PI * 2);
+          ctx.ellipse(6, groundY - 0.2, 4.5, 1.4, 0.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
         ctx.restore();
         return;
       }
@@ -3732,6 +4695,7 @@
     function restart() {
       Object.assign(state, {
         running: true,
+        simSpeed: speedLevels[state.speedIndex]?.simSpeed || speedLevels[0].simSpeed,
         day: 1,
         time: 6,
         energy: 38,
@@ -3741,6 +4705,10 @@
         waste: 17,
         food: 44,
         density: 8,
+        meterPrevious: {},
+        meterTrends: {},
+        nextTrendAt: 0,
+        collapsePressureMs: 0,
         surplusFoodDensity: 0,
         saturatedHumidityMs: 0,
         saturatedHumidityDensity: 0,
@@ -3758,10 +4726,16 @@
         },
         autopilot: {
           enabled: false,
-          nextAt: 0
+          nextAt: 0,
+          thought: "I am watching the dome for the next imbalance.",
+          focus: "idle",
+          plan: "Watch meters, then act on the first drift.",
+          lastAction: "None yet."
         },
         shopOpen: false,
         metersOpen: false,
+        decorationsUnlocked: false,
+        unlockNoticeShown: false,
         miraLeftDocked: false,
         miraDockAt: performance.now() + 15000,
         paused: false,
@@ -3769,10 +4743,17 @@
       });
       appEl.classList.remove("mira-left-docked");
       overlay.classList.add("hidden");
+      unlockPopupEl.classList.add("hidden");
+      state.pointer.active = false;
+      gameCursorEl.classList.remove("visible");
+      updateTrashZone();
+      resetMeterTrends();
       seedWorld();
       updateUi();
       updateShopDrawer();
       updateMetersDrawer();
+      updateDecorationsUnlockUi();
+      updateSpeedUi();
       updateAssistant(true);
     }
 
@@ -3780,12 +4761,16 @@
       const rect = canvas.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
+      state.pointer.active = true;
+      updateCursorFromPointer(x, y);
       const item = findItemAt(x, y);
 
       if (item && state.running && !state.paused && !state.gameOver) {
         state.dragging = { item, wasCreature: item.type === "creature" };
         item.vx = 0;
         item.vy = 0;
+        updateTrashZone(event.clientX, event.clientY);
+        updateCursorFromPointer(x, y);
         canvas.setPointerCapture(event.pointerId);
         return;
       }
@@ -3798,6 +4783,7 @@
         x,
         y
       };
+      updateCursorFromPointer(x, y);
       canvas.setPointerCapture(event.pointerId);
     });
 
@@ -3805,6 +4791,7 @@
       const rect = canvas.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
+      state.pointer.active = true;
 
       if (state.dragging) {
         const world = screenToWorld(x, y);
@@ -3813,6 +4800,8 @@
           state.dragging.item.wz = world.wz;
           updateScreenPosition(state.dragging.item);
         }
+        updateTrashZone(event.clientX, event.clientY);
+        updateCursorFromPointer(x, y);
         return;
       }
 
@@ -3822,15 +4811,22 @@
         if (Math.abs(dx) > 4 || Math.abs(dy) > 4) state.orbiting.moved = true;
         state.camera.angle = state.orbiting.startAngle + dx * 0.008;
       }
+      updateCursorFromPointer(x, y);
     });
 
     canvas.addEventListener("pointerup", (event) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
       if (state.dragging) {
-        if (state.dragging.wasCreature) {
+        const deleted = pointerOverTrash(event.clientX, event.clientY) && deleteDraggedItem();
+        if (!deleted && state.dragging.wasCreature) {
           state.dragging.item.vx = rand(-0.14, 0.14);
           state.dragging.item.vy = rand(-0.1, 0.1);
         }
         state.dragging = null;
+        updateTrashZone();
+        updateCursorFromPointer(x, y);
         if (canvas.hasPointerCapture(event.pointerId)) {
           canvas.releasePointerCapture(event.pointerId);
         }
@@ -3841,9 +4837,24 @@
         place(state.selected, state.orbiting.x, state.orbiting.y);
       }
       state.orbiting = null;
+      updateCursorFromPointer(x, y);
       if (canvas.hasPointerCapture(event.pointerId)) {
         canvas.releasePointerCapture(event.pointerId);
       }
+    });
+
+    canvas.addEventListener("pointerenter", (event) => {
+      const rect = canvas.getBoundingClientRect();
+      state.pointer.active = true;
+      updateCursorFromPointer(event.clientX - rect.left, event.clientY - rect.top);
+    });
+
+    canvas.addEventListener("pointerleave", () => {
+      state.pointer.active = false;
+      state.dragging = null;
+      state.orbiting = null;
+      updateTrashZone();
+      updateCursorFromPointer();
     });
 
     canvas.addEventListener("wheel", (event) => {
@@ -3865,6 +4876,10 @@
       state.camera.zoom = 1;
     });
 
+    speedToggleBtn.addEventListener("click", () => {
+      cycleSpeed();
+    });
+
     rotateLeftBtn.addEventListener("click", () => {
       rotateTable(-0.22);
     });
@@ -3880,7 +4895,7 @@
     aiToggleBtn.addEventListener("click", () => {
       state.autopilot.enabled = !state.autopilot.enabled;
       state.autopilot.nextAt = 0;
-      addMessage(state.autopilot.enabled ? "AI Autopilot engaged." : "AI Autopilot paused.");
+      addMessage(state.autopilot.enabled ? "AI Takeover engaged." : "AI Takeover paused.");
       updateUi();
       updateAssistant(true);
     });
@@ -3895,6 +4910,11 @@
       updateMetersDrawer();
     });
 
+    unlockDismissBtn.addEventListener("click", () => {
+      state.unlockNoticeShown = false;
+      updateDecorationsUnlockUi();
+    });
+
     canvas.addEventListener("pointercancel", (event) => {
       if (state.dragging && state.dragging.wasCreature) {
         state.dragging.item.vx = rand(-0.14, 0.14);
@@ -3902,6 +4922,9 @@
       }
       state.dragging = null;
       state.orbiting = null;
+      state.pointer.active = false;
+      updateTrashZone();
+      updateCursorFromPointer();
       if (canvas.hasPointerCapture(event.pointerId)) {
         canvas.releasePointerCapture(event.pointerId);
       }
@@ -3913,6 +4936,7 @@
         selectAction(actions[index].id);
       }
       if (event.key.toLowerCase() === "a") aiToggleBtn.click();
+      if (event.key.toLowerCase() === "s") cycleSpeed();
       if (event.key === " ") {
         event.preventDefault();
         togglePause();
